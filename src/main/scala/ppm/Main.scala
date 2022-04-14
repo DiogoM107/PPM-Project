@@ -12,6 +12,7 @@ import javafx.stage.Stage
 import scala.annotation.tailrec
 import scala.io.Source
 
+
 class Main extends Application {
 
   //Auxiliary types
@@ -41,6 +42,9 @@ class Main extends Application {
 
     val blueMaterial = new PhongMaterial()
     blueMaterial.setDiffuseColor(Color.rgb(0,0,150))
+
+    val blackMaterial = new PhongMaterial()
+    blackMaterial.setDiffuseColor(Color.rgb(0,0,0))
 
     //3D objects
     val lineX = new Line(0, 0, 200, 0)
@@ -126,10 +130,21 @@ class Main extends Application {
 
     val scene = new Scene(root, 810, 610, true, SceneAntialiasing.BALANCED)
 
+    //T3
+    def changeColor(): Unit = {
+      worldRoot.getChildren.forEach(n=> {
+        if(n.isInstanceOf[Shape3D] && !n.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.getBoundsInParent)) {
+          n.asInstanceOf[Shape3D].setMaterial(blackMaterial)
+        }
+      })
+    }
+
     //Mouse left click interaction
     scene.setOnMouseClicked((event) => {
       camVolume.setTranslateX(camVolume.getTranslateX + 2)
       worldRoot.getChildren.removeAll()
+      changeColor()
+
     })
 
     //setup and start the Stage
@@ -196,7 +211,7 @@ class Main extends Application {
     val shapesList = createShapesFromFile("config.txt")
 
 
-/*
+
     //oct1 - example of an main.scala.ppm.Octree[Placement] that contains only one Node (i.e. cylinder1)
     //In case of difficulties to implement task T2 this octree can be used as input for tasks T3, T4 and T5
 
@@ -204,6 +219,10 @@ class Main extends Application {
     val sec1: Section = (((0.0,0.0,0.0), 4.0), List(cylinder1.asInstanceOf[Node]))
     val ocLeaf1 = main.scala.ppm.OcLeaf(sec1)
     val oct1:main.scala.ppm.Octree[Placement] = main.scala.ppm.OcNode[Placement](placement1, ocLeaf1, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty)
+
+
+
+    /*
 
     //example of bounding boxes (corresponding to the octree oct1) added manually to the world
     val b2 = new Box(8,8,8)
