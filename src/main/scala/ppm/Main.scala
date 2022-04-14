@@ -1,14 +1,16 @@
+package main.scala.ppm
+
 import javafx.application.Application
-import javafx.geometry.Insets
-import javafx.scene.paint.PhongMaterial
-import javafx.scene.shape._
-import javafx.scene.transform.{Rotate, Translate}
-import javafx.scene.{Group, Node}
-import javafx.stage.Stage
-import javafx.geometry.Pos
+import javafx.geometry.{Insets, Pos}
+import javafx.scene._
 import javafx.scene.layout.StackPane
-import javafx.scene.paint.Color
-import javafx.scene.{PerspectiveCamera, Scene, SceneAntialiasing, SubScene}
+import javafx.scene.paint.{Color, PhongMaterial}
+import javafx.scene.shape._
+import javafx.scene.transform.Rotate
+import javafx.stage.Stage
+
+import scala.annotation.tailrec
+import scala.io.Source
 
 class Main extends Application {
 
@@ -20,7 +22,6 @@ class Main extends Application {
   //Shape3D is an abstract class that extends javafx.scene.Node
   //Box and Cylinder are subclasses of Shape3D
   type Section = (Placement, List[Node])  //example: ( ((0.0,0.0,0.0), 2.0), List(new Cylinder(0.5, 1, 10)))
-
 
   /*
     Additional information about JavaFX basic concepts (e.g. Stage, Scene) will be provided in week7
@@ -103,7 +104,7 @@ class Main extends Application {
     subScene.setFill(Color.DARKSLATEGRAY)
     subScene.setCamera(camera)
 
-    // CameraView - an additional perspective of the environment
+    // main.scala.ppm.CameraView - an additional perspective of the environment
     val cameraView = new CameraView(subScene)
     cameraView.setFirstPersonNavigationEabled(true)
     cameraView.setFitWidth(350)
@@ -114,7 +115,7 @@ class Main extends Application {
     cameraView.getCamera.setTranslateZ(-50)
     cameraView.startViewing
 
-      // Position of the CameraView: Right-bottom corner
+      // Position of the main.scala.ppm.CameraView: Right-bottom corner
       StackPane.setAlignment(cameraView, Pos.BOTTOM_RIGHT)
       StackPane.setMargin(cameraView, new Insets(5))
 
@@ -136,14 +137,73 @@ class Main extends Application {
     stage.setScene(scene)
     stage.show
 
+
+    //T1
+    def getShapesFromList(lst: List[String]): List[Shape3D] = {
+      lst match {
+        case Nil => Nil
+        case x::tail => {
+          val elem = x.split(" ")
+          val rgb = elem(1).replace("(", "").replace(")", "").split(",")
+          val color = new PhongMaterial()
+          color.setDiffuseColor(Color.rgb(rgb(0).toInt, rgb(1).toInt, rgb(2).toInt))
+          val transXYZ = (elem(2).toDouble, elem(3).toDouble, elem(4).toDouble)
+          val scaleXYZ = (elem(5).toDouble, elem(6).toDouble, elem(7).toDouble)
+          elem(0).toLowerCase() match {
+            case "cylinder" => {
+              val cylinder = new Cylinder(0.5, 1, 10)
+              cylinder.setTranslateX(transXYZ._1)
+              cylinder.setTranslateY(transXYZ._2)
+              cylinder.setTranslateZ(transXYZ._3)
+              cylinder.setScaleX(scaleXYZ._1)
+              cylinder.setScaleY(scaleXYZ._2)
+              cylinder.setScaleZ(scaleXYZ._3)
+              cylinder.setMaterial(color)
+              cylinder.setDrawMode(DrawMode.LINE)
+              cylinder::getShapesFromList(tail)
+            }
+            case "cube" => {
+              val box = new Box(1, 1, 1)
+              box.setTranslateX(transXYZ._1)
+              box.setTranslateY(transXYZ._2)
+              box.setTranslateZ(transXYZ._3)
+              box.setScaleX(scaleXYZ._1)
+              box.setScaleY(scaleXYZ._2)
+              box.setScaleZ(scaleXYZ._3)
+              box.setMaterial(color)
+              box.setDrawMode(DrawMode.LINE)
+              box::getShapesFromList(tail)
+
+            }
+            case _ => {
+              getShapesFromList(tail)
+            }
+          }
+        }
+      }
+
+    }
+
+    //T1
+    def createShapesFromFile(file: String): List[Shape3D] = {
+      val lines = Source.fromFile(file).getLines().toList
+      val shapes: List[Shape3D] = getShapesFromList(lines)
+      shapes
+
+    }
+
+    //TODO - usar nome do ficheiro que será enviado pelo terminal
+    val shapesList = createShapesFromFile("config.txt")
+
+
 /*
-    //oct1 - example of an Octree[Placement] that contains only one Node (i.e. cylinder1)
+    //oct1 - example of an main.scala.ppm.Octree[Placement] that contains only one Node (i.e. cylinder1)
     //In case of difficulties to implement task T2 this octree can be used as input for tasks T3, T4 and T5
 
     val placement1: Placement = ((0, 0, 0), 8.0)
     val sec1: Section = (((0.0,0.0,0.0), 4.0), List(cylinder1.asInstanceOf[Node]))
-    val ocLeaf1 = OcLeaf(sec1)
-    val oct1:Octree[Placement] = OcNode[Placement](placement1, ocLeaf1, OcEmpty, OcEmpty, OcEmpty, OcEmpty, OcEmpty, OcEmpty, OcEmpty)
+    val ocLeaf1 = main.scala.ppm.OcLeaf(sec1)
+    val oct1:main.scala.ppm.Octree[Placement] = main.scala.ppm.OcNode[Placement](placement1, ocLeaf1, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty)
 
     //example of bounding boxes (corresponding to the octree oct1) added manually to the world
     val b2 = new Box(8,8,8)

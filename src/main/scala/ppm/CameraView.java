@@ -1,5 +1,5 @@
-/**
- * CameraView.java
+package main.scala.ppm; /**
+ * main.scala.ppm.CameraView.java
  *
  * Copyright (c) 2013-2016, F(X)yz
  * All rights reserved.

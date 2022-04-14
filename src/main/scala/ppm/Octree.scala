@@ -1,3 +1,5 @@
+package main.scala.ppm
+
 sealed trait Octree[+A]
 
 case class OcNode[A](coords: A,
