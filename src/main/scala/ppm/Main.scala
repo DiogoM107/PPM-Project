@@ -220,10 +220,42 @@ class Main extends Application {
     val ocLeaf1 = main.scala.ppm.OcLeaf(sec1)
     val oct1:main.scala.ppm.Octree[Placement] = main.scala.ppm.OcNode[Placement](placement1, ocLeaf1, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty)
 
+    //T4
+    def scaleOctree(fact:Double, oct:Octree[Placement]):Octree[Placement] = {
+      def scaleShapes(shapes: List[Shape3D]) = {
+        shapes match {
+          case Nil => ""
+          case x::tail => {
+            x.setTranslateX(x.getTranslateX * fact)
+            x.setTranslateY(x.getTranslateY * fact)
+            x.setTranslateZ(x.getTranslateZ * fact)
+            x.setScaleX(x.getScaleX * fact)
+            x.setScaleY(x.getScaleY * fact)
+            x.setScaleZ(x.getScaleZ * fact)
+          }
+        }
+      }
 
+
+      def aux[A](oct:Octree[Placement]):Octree[Placement] = {
+        oct match {
+          case OcEmpty => OcEmpty
+          case OcLeaf(section) => {
+            val sec = section.asInstanceOf[Section]
+            val newSection = ((sec._1._1._1 * fact, sec._1._1._2 * fact, sec._1._1._3 * fact, sec._1._2 * fact), sec._2)
+            scaleShapes(section.asInstanceOf[Section]._2.asInstanceOf[List[Shape3D]])
+            OcLeaf(newSection)
+          }
+          case OcNode(coords, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11) => {
+            val newCoords = ((coords._1._1 * fact, coords._1._2 * fact, coords._1._3 * fact), coords._2 * fact)
+            OcNode(newCoords, aux(up_00), aux(up_01), aux(up_10), aux(up_11), aux(down_00), aux(down_01), aux(down_10), aux(down_11))
+          }
+        }
+      }
+      aux(oct)
+    }
 
     /*
-
     //example of bounding boxes (corresponding to the octree oct1) added manually to the world
     val b2 = new Box(8,8,8)
     //translate because it is added by defaut to the coords (0,0,0)
@@ -253,6 +285,31 @@ class Main extends Application {
 
   override def stop(): Unit = {
     println("stopped")
+  }
+
+  // Serve para testes
+  def printOctTree[A](octree: Octree[A]): Unit = {
+    octree match {
+      case OcEmpty => ""
+      case OcNode(coords, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11) => {
+        printOctTree(up_00)
+        printOctTree(up_01)
+        printOctTree(up_10)
+        printOctTree(up_11)
+        printOctTree(down_00)
+        printOctTree(down_01)
+        printOctTree(down_10)
+        printOctTree(down_11)
+      }
+      case OcLeaf(section) => {
+        section.asInstanceOf[Section]._2.foreach(x => printShape(x.asInstanceOf[Shape3D]))
+      }
+    }
+  }
+
+  // Serve para testes
+  def printShape(shape: Shape3D): Unit = {
+    println(s"Class: ${shape.getClass}, ${shape.getTranslateX}, ${shape.getTranslateY}, ${shape.getTranslateZ}, ${shape.getScaleX}, ${shape.getScaleY}, ${shape.getScaleZ}")
   }
 
 }
