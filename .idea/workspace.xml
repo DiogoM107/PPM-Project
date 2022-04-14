@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config.txt" afterDir="false" />
+    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="T1 - são lidas as shapes do ficheiro e introduzidas numa lista">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CameraTransformer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/CameraTransformer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CameraView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/CameraView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Octree.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Octree.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/config.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,7 +14,15 @@
   <component name="CodeStyleSettingsInfer">
     <option name="done" value="true" />
   </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="Diogo-T1" />
+  </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -39,7 +43,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../Projetos de apoio/ProjetoPPM-master/ProjetoPPM-master" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../faculdade/Projetos/PPM" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunManager" selected="Application.FxApp (1)">
@@ -78,9 +82,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.Main" />
         <item itemvalue="Application.FxApp (1)" />
         <item itemvalue="Application.FxApp" />
         <item itemvalue="Application.Main" />
+        <item itemvalue="Application.FxApp (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -93,6 +99,14 @@
       <option name="presentableId" value="Default" />
       <updated>1649600350289</updated>
     </task>
+    <task id="LOCAL-00001" summary="T1 - são lidas as shapes do ficheiro e introduzidas numa lista">
+      <created>1649938303396</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1649938303396</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -117,5 +131,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="T1 - são lidas as shapes do ficheiro e introduzidas numa lista" />
+    <option name="LAST_COMMIT_MESSAGE" value="T1 - são lidas as shapes do ficheiro e introduzidas numa lista" />
   </component>
 </project>
