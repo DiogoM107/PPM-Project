@@ -86,7 +86,7 @@ class Main extends Application {
     box1.setMaterial(greenMaterial)
 
     // 3D objects (group of nodes - javafx.scene.Node) that will be provide to the subScene
-    val worldRoot:Group = new Group(wiredBox, camVolume, lineX, lineY, lineZ, cylinder1, box1)
+    val worldRoot:Group = new Group(wiredBox, camVolume, lineX, lineY, lineZ)
 
     // Camera
     val camera = new PerspectiveCamera(true)
@@ -130,7 +130,7 @@ class Main extends Application {
 
     val scene = new Scene(root, 810, 610, true, SceneAntialiasing.BALANCED)
 
-    //T3
+    //T3 - tornar funcional esta função
     def changeColor(): Unit = {
       worldRoot.getChildren.forEach(n=> {
         if(n.isInstanceOf[Shape3D] && !n.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.getBoundsInParent)) {
@@ -175,6 +175,8 @@ class Main extends Application {
               cylinder.setScaleZ(scaleXYZ._3)
               cylinder.setMaterial(color)
               cylinder.setDrawMode(DrawMode.LINE)
+              printShape(cylinder)
+              worldRoot.getChildren.add(cylinder)
               cylinder::getShapesFromList(tail)
             }
             case "cube" => {
@@ -187,6 +189,8 @@ class Main extends Application {
               box.setScaleZ(scaleXYZ._3)
               box.setMaterial(color)
               box.setDrawMode(DrawMode.LINE)
+              printShape(box)
+              worldRoot.getChildren.add(box)
               box::getShapesFromList(tail)
 
             }
@@ -302,7 +306,17 @@ class Main extends Application {
         printOctTree(down_11)
       }
       case OcLeaf(section) => {
-        section.asInstanceOf[Section]._2.foreach(x => printShape(x.asInstanceOf[Shape3D]))
+        printShapesList(section.asInstanceOf[Section]._2)
+      }
+    }
+  }
+
+  def printShapesList(shapes: List[Node]): Unit = {
+    shapes match {
+      case Nil => ""
+      case x::tail => {
+        printShape(x.asInstanceOf[Shape3D])
+        printShapesList(tail)
       }
     }
   }
