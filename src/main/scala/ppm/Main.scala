@@ -46,6 +46,9 @@ class Main extends Application {
     val blackMaterial = new PhongMaterial()
     blackMaterial.setDiffuseColor(Color.rgb(0,0,0))
 
+    val whiteMaterial = new PhongMaterial()
+    whiteMaterial.setDiffuseColor(Color.rgb(255,255,255))
+
     //3D objects
     val lineX = new Line(0, 0, 200, 0)
     lineX.setStroke(Color.GREEN)
@@ -134,7 +137,7 @@ class Main extends Application {
     def changeColor(): Unit = {
       worldRoot.getChildren.forEach(n=> {
         if(n.isInstanceOf[Shape3D] && !n.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.getBoundsInParent)) {
-          n.asInstanceOf[Shape3D].setMaterial(blackMaterial)
+          n.asInstanceOf[Shape3D].setMaterial(whiteMaterial)
         }
       })
     }
@@ -214,15 +217,65 @@ class Main extends Application {
     //TODO - usar nome do ficheiro que será enviado pelo terminal
     val shapesList = createShapesFromFile("config.txt")
 
+    def containsAShape(node: Node) = {
+
+      def aux(node: Node, list: List[Shape3D]): Boolean = {
+        list match {
+          case Nil => false
+          case x :: xs => {
+            if (node.getBoundsInParent.contains(x.asInstanceOf[Shape3D].getBoundsInParent)) {
+              true
+            }
+            else {
+              aux(node, xs)
+            }
+          }
+        }
+
+        aux(node, shapesList)
+
+      }
+    }
+
+    createOcTree()
+
+    // criar uma OcTree
+    def createOcTree() = {
+      val placement: Placement = ((0, 0, 0), 32.0)
+      createOcNode(placement)
+    }
+
+    def createOcNode(placement: Placement): Octree[Placement] = {
+      val xyz = placement._1
+      val size = placement._2 / 2
+      val nodeBox = createShapeCube(placement)
+      //if (containsAShape(nodeBox)) {
+
+      worldRoot.getChildren.add(nodeBox)
+      if (placement._2 > 8) {
+        OcNode(placement,
+          createOcNode((xyz._1, xyz._2 + size, xyz._3), (size)),
+          createOcNode((xyz._1 + size, xyz._2 + size, xyz._3), (size)),
+          createOcNode((xyz._1, xyz._2 + size, xyz._3 + size), (size)),
+          createOcNode((xyz._1 + size, xyz._2 + size, xyz._3 + size), (size)),
+          createOcNode(xyz, (size)),
+          createOcNode((xyz._1 + size, xyz._2, xyz._3), (size)),
+          createOcNode((xyz._1, xyz._2, xyz._3 + size), (size)),
+          createOcNode((xyz._1 + size, xyz._2, xyz._3 + size), (size))
+        )
+      }
+
+      //}
+      else OcEmpty
+
+
+    }
+
+
 
 
     //oct1 - example of an main.scala.ppm.Octree[Placement] that contains only one Node (i.e. cylinder1)
     //In case of difficulties to implement task T2 this octree can be used as input for tasks T3, T4 and T5
-
-    val placement1: Placement = ((0, 0, 0), 8.0)
-    val sec1: Section = (((0.0,0.0,0.0), 4.0), List(cylinder1.asInstanceOf[Node]))
-    val ocLeaf1 = main.scala.ppm.OcLeaf(sec1)
-    val oct1:main.scala.ppm.Octree[Placement] = main.scala.ppm.OcNode[Placement](placement1, ocLeaf1, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty)
 
     //T4
     def scaleOctree(fact:Double, oct:Octree[Placement]):Octree[Placement] = {
@@ -258,6 +311,31 @@ class Main extends Application {
       }
       aux(oct)
     }
+
+    // Cria um cubo com o placement enviado como parametro
+    def createShapeCube(placement: Placement): Box = {
+      val xyz = placement._1
+      val size = placement._2
+      val box = new Box(size, size, size)
+      box.setTranslateX(size / 2 + xyz._1)
+      box.setTranslateY(size / 2 + xyz._2)
+      box.setTranslateZ(size / 2 + xyz._3)
+      box.setMaterial(redMaterial)
+      box.setDrawMode(DrawMode.LINE)
+      //worldRoot.getChildren.add(box)
+      box
+    }
+
+
+
+    //oct1 - example of an main.scala.ppm.Octree[Placement] that contains only one Node (i.e. cylinder1)
+    //In case of difficulties to implement task T2 this octree can be used as input for tasks T3, T4 and T5
+
+    val placement1: Placement = ((0, 0, 0), 8.0)
+    val sec1: Section = (((0.0,0.0,0.0), 4.0), List(cylinder1.asInstanceOf[Node]))
+    val ocLeaf1 = main.scala.ppm.OcLeaf(sec1)
+    val oct1:main.scala.ppm.Octree[Placement] = main.scala.ppm.OcNode[Placement](placement1, ocLeaf1, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty)
+    
 
     /*
     //example of bounding boxes (corresponding to the octree oct1) added manually to the world
