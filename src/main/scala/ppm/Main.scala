@@ -214,19 +214,6 @@ class Main extends Application {
     //TODO - usar nome do ficheiro que será enviado pelo terminal
     val shapesList = createShapesFromFile("config.txt")
 
-    // criar uma OcTree
-    def createOcTree(shapesList: List[Shape3D]) = {
-      val sectionCubeSize = 4/2
-      val nodeCubeSize = 8/2
-      val placement1: Placement = ((0, 0, 0), 8.0)
-
-    }
-/*
-    // criar os nodes da OcTree
-    def createNodes(size: Double, shapes: List[Shape3D]): List[OcNode[Placement]] = {
-      createLeafs(size, shapes)
-    }
-*/
 
 
     //oct1 - example of an main.scala.ppm.Octree[Placement] that contains only one Node (i.e. cylinder1)
