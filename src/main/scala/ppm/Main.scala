@@ -3,17 +3,23 @@ package main.scala.ppm
 import javafx.application.Application
 import javafx.geometry.{Insets, Pos}
 import javafx.scene._
+import javafx.scene.input.KeyCode
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.{Color, PhongMaterial}
 import javafx.scene.shape._
 import javafx.scene.transform.Rotate
 import javafx.stage.Stage
 
+import java.io.{File, PrintWriter}
 import scala.annotation.tailrec
 import scala.io.Source
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 
 class Main extends Application {
+
+  val MAX_SCALE = 32.0
+  val MIN_SCALE = 4.0
 
   //Auxiliary types
   type Point = (Double, Double, Double)
@@ -133,22 +139,25 @@ class Main extends Application {
 
     val scene = new Scene(root, 810, 610, true, SceneAntialiasing.BALANCED)
 
-    //T3 - tornar funcional esta função
+    //T3
     def changeColor(): Unit = {
-      worldRoot.getChildren.forEach(n=> {
-        if(n.isInstanceOf[Shape3D] && !n.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.getBoundsInParent)) {
-          n.asInstanceOf[Shape3D].setMaterial(whiteMaterial)
+      def aux(shapes: List[Shape3D]): Any = {
+        shapes match {
+          case Nil => Nil
+          case x::xs => {
+            if(!x.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.getBoundsInParent)) {
+              x.asInstanceOf[Shape3D].setMaterial(whiteMaterial)
+            }
+            else {
+              x.asInstanceOf[Shape3D].setMaterial(blueMaterial)
+            }
+            aux(xs)
+          }
         }
-      })
+      }
+      aux(getAllShapes())
     }
 
-    //Mouse left click interaction
-    scene.setOnMouseClicked((event) => {
-      camVolume.setTranslateX(camVolume.getTranslateX + 2)
-      worldRoot.getChildren.removeAll()
-      changeColor()
-
-    })
 
     //setup and start the Stage
     stage.setTitle("PPM Project 21/22")
@@ -177,8 +186,7 @@ class Main extends Application {
               cylinder.setScaleY(scaleXYZ._2)
               cylinder.setScaleZ(scaleXYZ._3)
               cylinder.setMaterial(color)
-              cylinder.setDrawMode(DrawMode.LINE)
-              printShape(cylinder)
+              cylinder.setDrawMode(DrawMode.FILL)
               worldRoot.getChildren.add(cylinder)
               cylinder::getShapesFromList(tail)
             }
@@ -191,8 +199,7 @@ class Main extends Application {
               box.setScaleY(scaleXYZ._2)
               box.setScaleZ(scaleXYZ._3)
               box.setMaterial(color)
-              box.setDrawMode(DrawMode.LINE)
-              printShape(box)
+              box.setDrawMode(DrawMode.FILL)
               worldRoot.getChildren.add(box)
               box::getShapesFromList(tail)
 
@@ -211,14 +218,43 @@ class Main extends Application {
       val lines = Source.fromFile(file).getLines().toList
       val shapes: List[Shape3D] = getShapesFromList(lines)
       shapes
+    }
 
+    def getAllShapes(): List[Shape3D] = {
+      def aux(children: List[Node], shapes: List[Shape3D]): List[Shape3D] = {
+        children match {
+          case Nil => shapes
+          case x::xs => {
+            if (x.isInstanceOf[Shape3D] && x!=camVolume) {
+              aux(xs, x.asInstanceOf[Shape3D]::shapes)
+            }
+            else {
+              aux(xs, shapes)
+            }
+          }
+        }
+      }
+      val list = worldRoot.getChildren.asScala.toList
+      aux(list, Nil)
     }
 
     //TODO - usar nome do ficheiro que será enviado pelo terminal
-    val shapesList = createShapesFromFile("config.txt")
+    createShapesFromFile("config.txt")
 
-    def containsAShape(node: Node) = {
+    // Cria um cubo com o placement enviado como parametro
+    def createShapeCube(placement: Placement): Box = {
+      val xyz = placement._1
+      val size = placement._2
+      val box = new Box(size, size, size)
+      box.setTranslateX(size / 2 + xyz._1)
+      box.setTranslateY(size / 2 + xyz._2)
+      box.setTranslateZ(size / 2 + xyz._3)
+      box.setMaterial(redMaterial)
+      box.setDrawMode(DrawMode.LINE)
+      box
+    }
 
+    def containsAShape(node: Node): Boolean = {
       def aux(node: Node, list: List[Shape3D]): Boolean = {
         list match {
           case Nil => false
@@ -231,17 +267,32 @@ class Main extends Application {
             }
           }
         }
-
-        aux(node, shapesList)
-
       }
+      val shapesList = getAllShapes()
+      aux(node, shapesList)
     }
 
-    createOcTree()
+    def getContainedShapes(node: Node): List[Shape3D] = {
+      def aux(node: Node, list: List[Shape3D], contained: List[Shape3D]): List[Shape3D] = {
+        list match {
+          case Nil => contained
+          case x :: xs => {
+            if (node.getBoundsInParent.contains(x.asInstanceOf[Shape3D].getBoundsInParent)) {
+              aux(node, xs, x::contained)
+            }
+            else {
+              aux(node, xs, contained)
+            }
+          }
+        }
+      }
+      val shapesList = createShapesFromFile("config.txt")
+      aux(node, shapesList, Nil)
+    }
 
-    // criar uma OcTree
-    def createOcTree() = {
-      val placement: Placement = ((0, 0, 0), 32.0)
+    //T2 - criar uma OcTree (Falta saber como definir o MIN_SCALE
+    def createOcTree(): Octree[Placement] = {
+      val placement: Placement = ((0, 0, 0), MAX_SCALE)
       createOcNode(placement)
     }
 
@@ -249,39 +300,36 @@ class Main extends Application {
       val xyz = placement._1
       val size = placement._2 / 2
       val nodeBox = createShapeCube(placement)
-      //if (containsAShape(nodeBox)) {
+      if (containsAShape(nodeBox)) {
 
-      worldRoot.getChildren.add(nodeBox)
-      if (placement._2 > 8) {
-        OcNode(placement,
-          createOcNode((xyz._1, xyz._2 + size, xyz._3), (size)),
-          createOcNode((xyz._1 + size, xyz._2 + size, xyz._3), (size)),
-          createOcNode((xyz._1, xyz._2 + size, xyz._3 + size), (size)),
-          createOcNode((xyz._1 + size, xyz._2 + size, xyz._3 + size), (size)),
-          createOcNode(xyz, (size)),
-          createOcNode((xyz._1 + size, xyz._2, xyz._3), (size)),
-          createOcNode((xyz._1, xyz._2, xyz._3 + size), (size)),
-          createOcNode((xyz._1 + size, xyz._2, xyz._3 + size), (size))
-        )
+        worldRoot.getChildren.add(nodeBox)
+        if (placement._2 > MIN_SCALE) {
+          OcNode(placement,
+            createOcNode((xyz._1, xyz._2 + size, xyz._3), (size)),
+            createOcNode((xyz._1 + size, xyz._2 + size, xyz._3), (size)),
+            createOcNode((xyz._1, xyz._2 + size, xyz._3 + size), (size)),
+            createOcNode((xyz._1 + size, xyz._2 + size, xyz._3 + size), (size)),
+            createOcNode(xyz, (size)),
+            createOcNode((xyz._1 + size, xyz._2, xyz._3), (size)),
+            createOcNode((xyz._1, xyz._2, xyz._3 + size), (size)),
+            createOcNode((xyz._1 + size, xyz._2, xyz._3 + size), (size))
+          )
+        }
+        else {
+          OcLeaf(placement, getContainedShapes(nodeBox))
+        }
+
       }
-
-      //}
       else OcEmpty
-
-
     }
 
-
-
-
-    //oct1 - example of an main.scala.ppm.Octree[Placement] that contains only one Node (i.e. cylinder1)
-    //In case of difficulties to implement task T2 this octree can be used as input for tasks T3, T4 and T5
+    var octree = createOcTree()
 
     //T4
-    def scaleOctree(fact:Double, oct:Octree[Placement]):Octree[Placement] = {
-      def scaleShapes(shapes: List[Shape3D]) = {
+    def scaleOctree(fact:Double, oct: Octree[Placement]) = {
+      def scaleShapes(shapes: List[Shape3D]): Any = {
         shapes match {
-          case Nil => ""
+          case Nil => Nil
           case x::tail => {
             x.setTranslateX(x.getTranslateX * fact)
             x.setTranslateY(x.getTranslateY * fact)
@@ -289,10 +337,10 @@ class Main extends Application {
             x.setScaleX(x.getScaleX * fact)
             x.setScaleY(x.getScaleY * fact)
             x.setScaleZ(x.getScaleZ * fact)
+            scaleShapes(tail)
           }
         }
       }
-
 
       def aux[A](oct:Octree[Placement]):Octree[Placement] = {
         oct match {
@@ -300,7 +348,7 @@ class Main extends Application {
           case OcLeaf(section) => {
             val sec = section.asInstanceOf[Section]
             val newSection = ((sec._1._1._1 * fact, sec._1._1._2 * fact, sec._1._1._3 * fact, sec._1._2 * fact), sec._2)
-            scaleShapes(section.asInstanceOf[Section]._2.asInstanceOf[List[Shape3D]])
+            //scaleShapes(section.asInstanceOf[Section]._2.asInstanceOf[List[Shape3D]])
             OcLeaf(newSection)
           }
           case OcNode(coords, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11) => {
@@ -309,33 +357,40 @@ class Main extends Application {
           }
         }
       }
-      aux(oct)
+      scaleShapes(getAllShapes())
+      aux(octree)
+      changeColor()
     }
 
-    // Cria um cubo com o placement enviado como parametro
-    def createShapeCube(placement: Placement): Box = {
-      val xyz = placement._1
-      val size = placement._2
-      val box = new Box(size, size, size)
-      box.setTranslateX(size / 2 + xyz._1)
-      box.setTranslateY(size / 2 + xyz._2)
-      box.setTranslateZ(size / 2 + xyz._3)
-      box.setMaterial(redMaterial)
-      box.setDrawMode(DrawMode.LINE)
-      //worldRoot.getChildren.add(box)
-      box
+    def writeToFile(file: String, oct1:Octree[Placement]) = {
+      val writer = new PrintWriter(new File(file))
+      writer.write(oct1.toString)
+      writer.close
     }
 
+    //Mouse left click interaction
+    scene.setOnMouseClicked((event) => {
+      camVolume.setTranslateX(camVolume.getTranslateX + 2)
+      changeColor()
+      writeToFile("output.txt", octree)
+    })
 
+    scene.setOnKeyPressed(k => {
+      if(k.getCode == KeyCode.UP)
+        scaleOctree(2, octree)
+      else if(k.getCode() == KeyCode.DOWN)
+        scaleOctree(0.5, octree)
+    })
 
     //oct1 - example of an main.scala.ppm.Octree[Placement] that contains only one Node (i.e. cylinder1)
     //In case of difficulties to implement task T2 this octree can be used as input for tasks T3, T4 and T5
 
-    val placement1: Placement = ((0, 0, 0), 8.0)
-    val sec1: Section = (((0.0,0.0,0.0), 4.0), List(cylinder1.asInstanceOf[Node]))
-    val ocLeaf1 = main.scala.ppm.OcLeaf(sec1)
-    val oct1:main.scala.ppm.Octree[Placement] = main.scala.ppm.OcNode[Placement](placement1, ocLeaf1, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty)
+    //val placement1: Placement = ((0, 0, 0), 8.0)
+    //val sec1: Section = (((0.0,0.0,0.0), 4.0), List(cylinder1.asInstanceOf[Node]))
+    //val ocLeaf1 = main.scala.ppm.OcLeaf(sec1)
+    //val oct1:main.scala.ppm.Octree[Placement] = main.scala.ppm.OcNode[Placement](placement1, ocLeaf1, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty)
     
+
 
     /*
     //example of bounding boxes (corresponding to the octree oct1) added manually to the world
