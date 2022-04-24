@@ -145,11 +145,13 @@ class Main extends Application {
         shapes match {
           case Nil => Nil
           case x::xs => {
-            if(!x.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.getBoundsInParent)) {
-              x.asInstanceOf[Shape3D].setMaterial(whiteMaterial)
-            }
-            else {
-              x.asInstanceOf[Shape3D].setMaterial(blueMaterial)
+            if (x.asInstanceOf[Shape3D].getMaterial != redMaterial && x.asInstanceOf[Shape3D].getMaterial != greenMaterial) {
+              if(!x.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.getBoundsInParent)) {
+                x.asInstanceOf[Shape3D].setMaterial(whiteMaterial)
+              }
+              else {
+                x.asInstanceOf[Shape3D].setMaterial(blueMaterial)
+              }
             }
             aux(xs)
           }
@@ -249,7 +251,7 @@ class Main extends Application {
       box.setTranslateX(size / 2 + xyz._1)
       box.setTranslateY(size / 2 + xyz._2)
       box.setTranslateZ(size / 2 + xyz._3)
-      box.setMaterial(redMaterial)
+      box.setMaterial(blueMaterial)
       box.setDrawMode(DrawMode.LINE)
       box
     }
@@ -389,8 +391,6 @@ class Main extends Application {
     //val sec1: Section = (((0.0,0.0,0.0), 4.0), List(cylinder1.asInstanceOf[Node]))
     //val ocLeaf1 = main.scala.ppm.OcLeaf(sec1)
     //val oct1:main.scala.ppm.Octree[Placement] = main.scala.ppm.OcNode[Placement](placement1, ocLeaf1, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty)
-    
-
 
     /*
     //example of bounding boxes (corresponding to the octree oct1) added manually to the world
