@@ -28,7 +28,7 @@ class Main extends Application {
 
   //Shape3D is an abstract class that extends javafx.scene.Node
   //Box and Cylinder are subclasses of Shape3D
-  type Section = (Placement, List[Node])  //example: ( ((0.0,0.0,0.0), 2.0), List(new Cylinder(0.5, 1, 10)))
+  type Section = (Placement, List[Node]) //example: ( ((0.0,0.0,0.0), 2.0), List(new Cylinder(0.5, 1, 10)))
 
   /*
     Additional information about JavaFX basic concepts (e.g. Stage, Scene) will be provided in week7
@@ -41,19 +41,19 @@ class Main extends Application {
 
     //Materials to be applied to the 3D objects
     val redMaterial = new PhongMaterial()
-    redMaterial.setDiffuseColor(Color.rgb(150,0,0))
+    redMaterial.setDiffuseColor(Color.rgb(150, 0, 0))
 
     val greenMaterial = new PhongMaterial()
-    greenMaterial.setDiffuseColor(Color.rgb(0,255,0))
+    greenMaterial.setDiffuseColor(Color.rgb(0, 255, 0))
 
     val blueMaterial = new PhongMaterial()
-    blueMaterial.setDiffuseColor(Color.rgb(0,0,150))
+    blueMaterial.setDiffuseColor(Color.rgb(0, 0, 150))
 
     val blackMaterial = new PhongMaterial()
-    blackMaterial.setDiffuseColor(Color.rgb(0,0,0))
+    blackMaterial.setDiffuseColor(Color.rgb(0, 0, 0))
 
     val whiteMaterial = new PhongMaterial()
-    whiteMaterial.setDiffuseColor(Color.rgb(255,255,255))
+    whiteMaterial.setDiffuseColor(Color.rgb(255, 255, 255))
 
     //3D objects
     val lineX = new Line(0, 0, 200, 0)
@@ -88,14 +88,14 @@ class Main extends Application {
     cylinder1.setScaleZ(2)
     cylinder1.setMaterial(greenMaterial)
 
-    val box1 = new Box(1, 1, 1)  //
+    val box1 = new Box(1, 1, 1) //
     box1.setTranslateX(5)
     box1.setTranslateY(5)
     box1.setTranslateZ(5)
     box1.setMaterial(greenMaterial)
 
     // 3D objects (group of nodes - javafx.scene.Node) that will be provide to the subScene
-    val worldRoot:Group = new Group(wiredBox, camVolume, lineX, lineY, lineZ)
+    val worldRoot: Group = new Group(wiredBox, camVolume, lineX, lineY, lineZ)
 
     // Camera
     val camera = new PerspectiveCamera(true)
@@ -128,9 +128,9 @@ class Main extends Application {
     cameraView.getCamera.setTranslateZ(-50)
     cameraView.startViewing
 
-      // Position of the main.scala.ppm.CameraView: Right-bottom corner
-      StackPane.setAlignment(cameraView, Pos.BOTTOM_RIGHT)
-      StackPane.setMargin(cameraView, new Insets(5))
+    // Position of the main.scala.ppm.CameraView: Right-bottom corner
+    StackPane.setAlignment(cameraView, Pos.BOTTOM_RIGHT)
+    StackPane.setMargin(cameraView, new Insets(5))
 
     // Scene - defines what is rendered (in this case the subScene and the cameraView)
     val root = new StackPane(subScene, cameraView)
@@ -139,25 +139,22 @@ class Main extends Application {
 
     val scene = new Scene(root, 810, 610, true, SceneAntialiasing.BALANCED)
 
-    //T3
-    def changeColor(): Unit = {
-      def aux(shapes: List[Shape3D]): Any = {
-        shapes match {
-          case Nil => Nil
-          case x::xs => {
-            if (x.asInstanceOf[Shape3D].getMaterial != redMaterial && x.asInstanceOf[Shape3D].getMaterial != greenMaterial) {
-              if(!x.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.getBoundsInParent)) {
-                x.asInstanceOf[Shape3D].setMaterial(whiteMaterial)
-              }
-              else {
-                x.asInstanceOf[Shape3D].setMaterial(blueMaterial)
-              }
+    //T3 - Estou a usar o x.asInstanceOf[Shape3D].getDrawMode != DrawMode.FILL para não mudar a cor das shapes enviadas
+    def changeColor(shapes: List[Shape3D]): Unit = {
+      shapes match {
+        case Nil => Nil
+        case x :: xs => {
+          if (x.asInstanceOf[Shape3D].getDrawMode != DrawMode.FILL) {
+            if (!x.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.getBoundsInParent)) {
+              x.asInstanceOf[Shape3D].setMaterial(whiteMaterial)
             }
-            aux(xs)
+            else {
+              x.asInstanceOf[Shape3D].setMaterial(blueMaterial)
+            }
           }
+          changeColor(xs)
         }
       }
-      aux(getAllShapes())
     }
 
 
@@ -171,7 +168,7 @@ class Main extends Application {
     def getShapesFromList(lst: List[String]): List[Shape3D] = {
       lst match {
         case Nil => Nil
-        case x::tail => {
+        case x :: tail => {
           val elem = x.split(" ")
           val rgb = elem(1).replace("(", "").replace(")", "").split(",")
           val color = new PhongMaterial()
@@ -190,7 +187,7 @@ class Main extends Application {
               cylinder.setMaterial(color)
               cylinder.setDrawMode(DrawMode.FILL)
               worldRoot.getChildren.add(cylinder)
-              cylinder::getShapesFromList(tail)
+              cylinder :: getShapesFromList(tail)
             }
             case "cube" => {
               val box = new Box(1, 1, 1)
@@ -203,7 +200,7 @@ class Main extends Application {
               box.setMaterial(color)
               box.setDrawMode(DrawMode.FILL)
               worldRoot.getChildren.add(box)
-              box::getShapesFromList(tail)
+              box :: getShapesFromList(tail)
 
             }
             case _ => {
@@ -226,9 +223,9 @@ class Main extends Application {
       def aux(children: List[Node], shapes: List[Shape3D]): List[Shape3D] = {
         children match {
           case Nil => shapes
-          case x::xs => {
-            if (x.isInstanceOf[Shape3D] && x!=camVolume) {
-              aux(xs, x.asInstanceOf[Shape3D]::shapes)
+          case x :: xs => {
+            if (x.isInstanceOf[Shape3D] && x != camVolume) {
+              aux(xs, x.asInstanceOf[Shape3D] :: shapes)
             }
             else {
               aux(xs, shapes)
@@ -236,6 +233,7 @@ class Main extends Application {
           }
         }
       }
+
       val list = worldRoot.getChildren.asScala.toList
       aux(list, Nil)
     }
@@ -270,6 +268,7 @@ class Main extends Application {
           }
         }
       }
+
       val shapesList = getAllShapes()
       aux(node, shapesList)
     }
@@ -280,7 +279,7 @@ class Main extends Application {
           case Nil => contained
           case x :: xs => {
             if (node.getBoundsInParent.contains(x.asInstanceOf[Shape3D].getBoundsInParent)) {
-              aux(node, xs, x::contained)
+              aux(node, xs, x :: contained)
             }
             else {
               aux(node, xs, contained)
@@ -288,6 +287,7 @@ class Main extends Application {
           }
         }
       }
+
       val shapesList = createShapesFromFile("config.txt")
       aux(node, shapesList, Nil)
     }
@@ -327,12 +327,12 @@ class Main extends Application {
 
     var octree = createOcTree()
 
-    //T4
-    def scaleOctree(fact:Double, oct: Octree[Placement]) = {
+    //T4 - deve devolver a ocTree
+    def scaleOctree(fact: Double, oct: Octree[Placement]) = {
       def scaleShapes(shapes: List[Shape3D]): Any = {
         shapes match {
           case Nil => Nil
-          case x::tail => {
+          case x :: tail => {
             x.setTranslateX(x.getTranslateX * fact)
             x.setTranslateY(x.getTranslateY * fact)
             x.setTranslateZ(x.getTranslateZ * fact)
@@ -344,7 +344,8 @@ class Main extends Application {
         }
       }
 
-      def aux[A](oct:Octree[Placement]):Octree[Placement] = {
+      //TODO - renomear função
+      def aux[A](oct: Octree[Placement]): Octree[Placement] = {
         oct match {
           case OcEmpty => OcEmpty
           case OcLeaf(section) => {
@@ -359,12 +360,13 @@ class Main extends Application {
           }
         }
       }
+
       scaleShapes(getAllShapes())
       aux(octree)
-      changeColor()
+      changeColor(getAllShapes())
     }
 
-    def writeToFile(file: String, oct1:Octree[Placement]) = {
+    def writeToFile(file: String, oct1: Octree[Placement]) = {
       val writer = new PrintWriter(new File(file))
       writer.write(oct1.toString)
       writer.close
@@ -373,16 +375,39 @@ class Main extends Application {
     //Mouse left click interaction
     scene.setOnMouseClicked((event) => {
       camVolume.setTranslateX(camVolume.getTranslateX + 2)
-      changeColor()
+      changeColor(getAllShapes())
       writeToFile("output.txt", octree)
     })
 
+    //TODO - apenas para testar o scaleOctree
     scene.setOnKeyPressed(k => {
-      if(k.getCode == KeyCode.UP)
+      if (k.getCode == KeyCode.UP)
         scaleOctree(2, octree)
-      else if(k.getCode() == KeyCode.DOWN)
+      else if (k.getCode() == KeyCode.DOWN)
         scaleOctree(0.5, octree)
     })
+
+    //T5
+    def mapColourEffect(func: Color => Color, oct: Octree[Placement]): Octree[Placement] = {
+      oct match {
+        case OcEmpty => OcEmpty
+        case OcLeaf(section) => {
+          val list = section.asInstanceOf[Section]._2
+          list.map(x => {
+            val c = x.asInstanceOf[Shape3D].getMaterial.asInstanceOf[PhongMaterial].getDiffuseColor
+            val pm = new PhongMaterial()
+            pm.setDiffuseColor(func(c))
+            x.asInstanceOf[Shape3D].setMaterial(pm)
+          })
+          val section2: Section = (section.asInstanceOf[Section]._1, list)
+          OcLeaf(section2)
+        }
+        case OcNode(coords, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11) => {
+          OcNode(coords, mapColourEffect(func, up_00), mapColourEffect(func, up_01), mapColourEffect(func, up_10), mapColourEffect(func, up_11),
+            mapColourEffect(func, down_00), mapColourEffect(func, down_01), mapColourEffect(func, down_10), mapColourEffect(func, down_11))
+        }
+      }
+    }
 
     //oct1 - example of an main.scala.ppm.Octree[Placement] that contains only one Node (i.e. cylinder1)
     //In case of difficulties to implement task T2 this octree can be used as input for tasks T3, T4 and T5
@@ -447,7 +472,7 @@ class Main extends Application {
   def printShapesList(shapes: List[Node]): Unit = {
     shapes match {
       case Nil => ""
-      case x::tail => {
+      case x :: tail => {
         printShape(x.asInstanceOf[Shape3D])
         printShapesList(tail)
       }

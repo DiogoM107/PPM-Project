@@ -1,0 +1,316 @@
+Index: src/main/scala/ppm/Main.scala
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package main.scala.ppm\r\n\r\nimport javafx.application.Application\r\nimport javafx.geometry.{Insets, Pos}\r\nimport javafx.scene._\r\nimport javafx.scene.layout.StackPane\r\nimport javafx.scene.paint.{Color, PhongMaterial}\r\nimport javafx.scene.shape._\r\nimport javafx.scene.transform.Rotate\r\nimport javafx.stage.Stage\r\n\r\nimport scala.annotation.tailrec\r\nimport scala.io.Source\r\n\r\nclass Main extends Application {\r\n\r\n  //Auxiliary types\r\n  type Point = (Double, Double, Double)\r\n  type Size = Double\r\n  type Placement = (Point, Size) //1st point: origin, 2nd point: size\r\n\r\n  //Shape3D is an abstract class that extends javafx.scene.Node\r\n  //Box and Cylinder are subclasses of Shape3D\r\n  type Section = (Placement, List[Node])  //example: ( ((0.0,0.0,0.0), 2.0), List(new Cylinder(0.5, 1, 10)))\r\n\r\n  /*\r\n    Additional information about JavaFX basic concepts (e.g. Stage, Scene) will be provided in week7\r\n   */\r\n  override def start(stage: Stage): Unit = {\r\n\r\n    //Get and print program arguments (args: Array[String])\r\n    val params = getParameters\r\n    println(\"Program arguments:\" + params.getRaw)\r\n\r\n    //Materials to be applied to the 3D objects\r\n    val redMaterial = new PhongMaterial()\r\n    redMaterial.setDiffuseColor(Color.rgb(150,0,0))\r\n\r\n    val greenMaterial = new PhongMaterial()\r\n    greenMaterial.setDiffuseColor(Color.rgb(0,255,0))\r\n\r\n    val blueMaterial = new PhongMaterial()\r\n    blueMaterial.setDiffuseColor(Color.rgb(0,0,150))\r\n\r\n    //3D objects\r\n    val lineX = new Line(0, 0, 200, 0)\r\n    lineX.setStroke(Color.GREEN)\r\n\r\n    val lineY = new Line(0, 0, 0, 200)\r\n    lineY.setStroke(Color.YELLOW)\r\n\r\n    val lineZ = new Line(0, 0, 200, 0)\r\n    lineZ.setStroke(Color.LIGHTSALMON)\r\n    lineZ.getTransforms().add(new Rotate(-90, 0, 0, 0, Rotate.Y_AXIS))\r\n\r\n    val camVolume = new Cylinder(10, 50, 10)\r\n    camVolume.setTranslateX(1)\r\n    camVolume.getTransforms().add(new Rotate(45, 0, 0, 0, Rotate.X_AXIS))\r\n    camVolume.setMaterial(blueMaterial)\r\n    camVolume.setDrawMode(DrawMode.LINE)\r\n\r\n    val wiredBox = new Box(32, 32, 32)\r\n    wiredBox.setTranslateX(16)\r\n    wiredBox.setTranslateY(16)\r\n    wiredBox.setTranslateZ(16)\r\n    wiredBox.setMaterial(redMaterial)\r\n    wiredBox.setDrawMode(DrawMode.LINE)\r\n\r\n    val cylinder1 = new Cylinder(0.5, 1, 10)\r\n    cylinder1.setTranslateX(2)\r\n    cylinder1.setTranslateY(2)\r\n    cylinder1.setTranslateZ(2)\r\n    cylinder1.setScaleX(2)\r\n    cylinder1.setScaleY(2)\r\n    cylinder1.setScaleZ(2)\r\n    cylinder1.setMaterial(greenMaterial)\r\n\r\n    val box1 = new Box(1, 1, 1)  //\r\n    box1.setTranslateX(5)\r\n    box1.setTranslateY(5)\r\n    box1.setTranslateZ(5)\r\n    box1.setMaterial(greenMaterial)\r\n\r\n    // 3D objects (group of nodes - javafx.scene.Node) that will be provide to the subScene\r\n    val worldRoot:Group = new Group(wiredBox, camVolume, lineX, lineY, lineZ)\r\n\r\n    // Camera\r\n    val camera = new PerspectiveCamera(true)\r\n\r\n    val cameraTransform = new CameraTransformer\r\n    cameraTransform.setTranslate(0, 0, 0)\r\n    cameraTransform.getChildren.add(camera)\r\n    camera.setNearClip(0.1)\r\n    camera.setFarClip(10000.0)\r\n\r\n    camera.setTranslateZ(-500)\r\n    camera.setFieldOfView(20)\r\n    cameraTransform.ry.setAngle(-45.0)\r\n    cameraTransform.rx.setAngle(-45.0)\r\n    worldRoot.getChildren.add(cameraTransform)\r\n\r\n    // SubScene - composed by the nodes present in the worldRoot\r\n    val subScene = new SubScene(worldRoot, 800, 600, true, SceneAntialiasing.BALANCED)\r\n    subScene.setFill(Color.DARKSLATEGRAY)\r\n    subScene.setCamera(camera)\r\n\r\n    // main.scala.ppm.CameraView - an additional perspective of the environment\r\n    val cameraView = new CameraView(subScene)\r\n    cameraView.setFirstPersonNavigationEabled(true)\r\n    cameraView.setFitWidth(350)\r\n    cameraView.setFitHeight(225)\r\n    cameraView.getRx.setAngle(-45)\r\n    cameraView.getT.setZ(-100)\r\n    cameraView.getT.setY(-500)\r\n    cameraView.getCamera.setTranslateZ(-50)\r\n    cameraView.startViewing\r\n\r\n      // Position of the main.scala.ppm.CameraView: Right-bottom corner\r\n      StackPane.setAlignment(cameraView, Pos.BOTTOM_RIGHT)\r\n      StackPane.setMargin(cameraView, new Insets(5))\r\n\r\n    // Scene - defines what is rendered (in this case the subScene and the cameraView)\r\n    val root = new StackPane(subScene, cameraView)\r\n    subScene.widthProperty.bind(root.widthProperty)\r\n    subScene.heightProperty.bind(root.heightProperty)\r\n\r\n    val scene = new Scene(root, 810, 610, true, SceneAntialiasing.BALANCED)\r\n\r\n    //Mouse left click interaction\r\n    scene.setOnMouseClicked((event) => {\r\n      camVolume.setTranslateX(camVolume.getTranslateX + 2)\r\n      worldRoot.getChildren.removeAll()\r\n    })\r\n\r\n    //setup and start the Stage\r\n    stage.setTitle(\"PPM Project 21/22\")\r\n    stage.setScene(scene)\r\n    stage.show\r\n\r\n\r\n    //T1\r\n    def getShapesFromList(lst: List[String]): List[Shape3D] = {\r\n      lst match {\r\n        case Nil => Nil\r\n        case x::tail => {\r\n          val elem = x.split(\" \")\r\n          val rgb = elem(1).replace(\"(\", \"\").replace(\")\", \"\").split(\",\")\r\n          val color = new PhongMaterial()\r\n          color.setDiffuseColor(Color.rgb(rgb(0).toInt, rgb(1).toInt, rgb(2).toInt))\r\n          val transXYZ = (elem(2).toDouble, elem(3).toDouble, elem(4).toDouble)\r\n          val scaleXYZ = (elem(5).toDouble, elem(6).toDouble, elem(7).toDouble)\r\n          elem(0).toLowerCase() match {\r\n            case \"cylinder\" => {\r\n              val cylinder = new Cylinder(0.5, 1, 10)\r\n              cylinder.setTranslateX(transXYZ._1)\r\n              cylinder.setTranslateY(transXYZ._2)\r\n              cylinder.setTranslateZ(transXYZ._3)\r\n              cylinder.setScaleX(scaleXYZ._1)\r\n              cylinder.setScaleY(scaleXYZ._2)\r\n              cylinder.setScaleZ(scaleXYZ._3)\r\n              //cylinder.setMaterial(color)\r\n              cylinder.setMaterial(redMaterial)\r\n              cylinder.setDrawMode(DrawMode.LINE)\r\n              worldRoot.getChildren.add(cylinder)\r\n              cylinder::getShapesFromList(tail)\r\n\r\n            }\r\n            case \"cube\" => {\r\n              val box = new Box(1, 1, 1)\r\n              box.setTranslateX(transXYZ._1)\r\n              box.setTranslateY(transXYZ._2)\r\n              box.setTranslateZ(transXYZ._3)\r\n              box.setScaleX(scaleXYZ._1)\r\n              box.setScaleY(scaleXYZ._2)\r\n              box.setScaleZ(scaleXYZ._3)\r\n              //box.setMaterial(color)\r\n              box.setMaterial(redMaterial)\r\n              box.setDrawMode(DrawMode.LINE)\r\n              box::getShapesFromList(tail)\r\n\r\n            }\r\n            case _ => {\r\n              getShapesFromList(tail)\r\n            }\r\n          }\r\n        }\r\n      }\r\n\r\n    }\r\n\r\n    //T1\r\n    def createShapesFromFile(file: String): List[Shape3D] = {\r\n      val lines = Source.fromFile(file).getLines().toList\r\n      val shapes: List[Shape3D] = getShapesFromList(lines)\r\n      shapes\r\n\r\n    }\r\n\r\n    //TODO - usar nome do ficheiro que será enviado pelo terminal\r\n    val shapesList = createShapesFromFile(\"config.txt\")\r\n\r\n    // criar uma OcTree\r\n    def createOcTree(shapesList: List[Shape3D]) = {\r\n      val sectionCubeSize = 4/2\r\n      val nodeCubeSize = 8/2\r\n      val placement1: Placement = ((0, 0, 0), 8.0)\r\n\r\n    }\r\n/*\r\n    // criar os nodes da OcTree\r\n    def createNodes(size: Double, shapes: List[Shape3D]): List[OcNode[Placement]] = {\r\n      createLeafs(size, shapes)\r\n    }\r\n*/\r\n\r\n    /*\r\n    // cria as leafs\r\n    def createLeafs(size: Double, shapes: List[Shape3D]): List[OcLeaf[Placement, Section]] = {\r\n      def aux (secs: List[Section], leafs: List[OcLeaf[Placement, Section]]): List[OcLeaf[Placement, Section]] = {\r\n        secs match {\r\n          case Nil => leafs\r\n          case x::tail => {\r\n            aux(tail, (new OcLeaf(x))::leafs)\r\n          }\r\n        }\r\n      }\r\n      aux(createSections(size, shapes), List.empty)\r\n\r\n    }\r\n\r\n     */\r\n    // criar as sections e retorna apenas as que têm shapes\r\n    def createSections(size: Double, shapes: List[Shape3D]): List[Section] = {\r\n      val sec1: Section = (((0.0,0.0,0.0), size), shapesInSectionAsList((0.0, 0.0, 0.0), shapes, size))\r\n      val sec2: Section = (((0.0 + size,0.0,0.0), size), shapesInSectionAsList((0.0 + size,0.0,0.0), shapes, size))\r\n      val sec3: Section = (((0.0,0.0 + size,0.0), size), shapesInSectionAsList((0.0,0.0 + size,0.0), shapes, size))\r\n      val sec4: Section = (((0.0 + size,0.0 + size,0.0), size), shapesInSectionAsList((0.0 + size,0.0 + size,0.0), shapes, size))\r\n      val sec5: Section = (((0.0 + size,0.0,0.0), size), shapesInSectionAsList((0.0 + size,0.0,0.0), shapes, size))\r\n      val sec6: Section = (((0.0 + size,0.0 + size,0.0), size), shapesInSectionAsList((0.0 + size,0.0 + size,0.0), shapes, size))\r\n      val sec7: Section = (((0.0,0.0,0.0 + size), size), shapesInSectionAsList((0.0,0.0,0.0 + size), shapes, size))\r\n      val sec8: Section = (((0.0 + size,0.0 + size,0.0 + size), size), shapesInSectionAsList((0.0 + size,0.0 + size,0.0 + size), shapes, size))\r\n      val secList: List[Section] = List(sec1, sec2, sec3, sec4, sec5, sec6, sec7, sec8)\r\n      def aux (secList: List[Section], secWithShapes: List[Section]): List[Section] = {\r\n        secList match {\r\n          case Nil => secWithShapes\r\n          case x::tail => {\r\n            if (!x._2.isEmpty) {\r\n              aux(tail, x::secWithShapes)\r\n            }\r\n            aux(tail, secWithShapes)\r\n          }\r\n        }\r\n      }\r\n      aux(secList, List.empty)\r\n\r\n    }\r\n\r\n    // Devolve uma lista com todas as shapes que estão numa determinada section\r\n    def shapesInSectionAsList(point: Point, shapes: List[Shape3D], size: Double): List[Shape3D] = {\r\n      val b = new Box()\r\n      def aux(point: Point, shapes: List[Shape3D], containedShapes: List[Shape3D]): List[Shape3D] = {\r\n        shapes match {\r\n          case Nil => containedShapes\r\n          case x::tail => {\r\n            val box = createShapeCube(point,size)\r\n            if(box.asInstanceOf[Shape3D].getBoundsInParent.intersects(x.getBoundsInParent)) {\r\n\r\n              if (!worldRoot.getChildren.contains(x)) {\r\n                println(s\"Encontramos o ${x}\")\r\n                aux(point, tail, x::containedShapes)\r\n                worldRoot.getChildren.add(x)\r\n              }\r\n              aux(point, tail, containedShapes)\r\n            }\r\n            aux(point, tail, containedShapes)\r\n          }\r\n        }\r\n      }\r\n      aux(point, shapes, List.empty)\r\n    }\r\n\r\n    // Cria um cubo com o placement enviado como parametro\r\n    def createShapeCube(point: Point, size: Size): Box = {\r\n      val box = new Box(size, size, size)\r\n      box.setScaleX(point._1)\r\n      box.setScaleY(point._2)\r\n      box.setScaleZ(point._3)\r\n      box.setMaterial(greenMaterial)\r\n      box.setDrawMode(DrawMode.LINE)\r\n      //worldRoot.getChildren.add(box)\r\n      box\r\n    }\r\n\r\n\r\n\r\n    //oct1 - example of an main.scala.ppm.Octree[Placement] that contains only one Node (i.e. cylinder1)\r\n    //In case of difficulties to implement task T2 this octree can be used as input for tasks T3, T4 and T5\r\n\r\n    val placement1: Placement = ((0, 0, 0), 8.0)\r\n    val sec1: Section = (((0.0,0.0,0.0), 4.0), List(cylinder1.asInstanceOf[Node]))\r\n    val ocLeaf1 = main.scala.ppm.OcLeaf(sec1)\r\n    val oct1:main.scala.ppm.Octree[Placement] = main.scala.ppm.OcNode[Placement](placement1, ocLeaf1, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty)\r\n\r\n\r\n\r\n\r\n    /*\r\n    //example of bounding boxes (corresponding to the octree oct1) added manually to the world\r\n    val b2 = new Box(8,8,8)\r\n    //translate because it is added by defaut to the coords (0,0,0)\r\n    b2.setTranslateX(8/2)\r\n    b2.setTranslateY(8/2)\r\n    b2.setTranslateZ(8/2)\r\n    b2.setMaterial(redMaterial)\r\n    b2.setDrawMode(DrawMode.LINE)\r\n\r\n    val b3 = new Box(4,4,4)\r\n    //translate because it is added by defaut to the coords (0,0,0)\r\n    b3.setTranslateX(4/2)\r\n    b3.setTranslateY(4/2)\r\n    b3.setTranslateZ(4/2)\r\n    b3.setMaterial(redMaterial)\r\n    b3.setDrawMode(DrawMode.LINE)\r\n\r\n    //adding boxes b2 and b3 to the world\r\n    worldRoot.getChildren.add(b2)\r\n    worldRoot.getChildren.add(b3)\r\n    */\r\n  }\r\n\r\n  override def init(): Unit = {\r\n    println(\"init\")\r\n  }\r\n\r\n  override def stop(): Unit = {\r\n    println(\"stopped\")\r\n  }\r\n\r\n}\r\n\r\nobject FxApp {\r\n\r\n  def main(args: Array[String]): Unit = {\r\n    Application.launch(classOf[Main], args: _*)\r\n  }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/scala/ppm/Main.scala b/src/main/scala/ppm/Main.scala
+--- a/src/main/scala/ppm/Main.scala	
++++ b/src/main/scala/ppm/Main.scala	
+@@ -12,6 +12,7 @@
+ import scala.annotation.tailrec
+ import scala.io.Source
+ 
++
+ class Main extends Application {
+ 
+   //Auxiliary types
+@@ -42,6 +43,9 @@
+     val blueMaterial = new PhongMaterial()
+     blueMaterial.setDiffuseColor(Color.rgb(0,0,150))
+ 
++    val blackMaterial = new PhongMaterial()
++    blackMaterial.setDiffuseColor(Color.rgb(0,0,0))
++
+     //3D objects
+     val lineX = new Line(0, 0, 200, 0)
+     lineX.setStroke(Color.GREEN)
+@@ -126,10 +130,21 @@
+ 
+     val scene = new Scene(root, 810, 610, true, SceneAntialiasing.BALANCED)
+ 
++    //T3 - tornar funcional esta função
++    def changeColor(): Unit = {
++      worldRoot.getChildren.forEach(n=> {
++        if(n.isInstanceOf[Shape3D] && !n.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.getBoundsInParent)) {
++          n.asInstanceOf[Shape3D].setMaterial(blackMaterial)
++        }
++      })
++    }
++
+     //Mouse left click interaction
+     scene.setOnMouseClicked((event) => {
+       camVolume.setTranslateX(camVolume.getTranslateX + 2)
+       worldRoot.getChildren.removeAll()
++      changeColor()
++
+     })
+ 
+     //setup and start the Stage
+@@ -161,7 +176,10 @@
+               //cylinder.setMaterial(color)
+               cylinder.setMaterial(redMaterial)
+               cylinder.setDrawMode(DrawMode.LINE)
+-              worldRoot.getChildren.add(cylinder)
++              printShape(cylinder)
++              if (wiredBox.getBoundsInParent.contains(cylinder.asInstanceOf[Shape3D].getBoundsInParent)) {
++                worldRoot.getChildren.add(cylinder)
++              }
+               cylinder::getShapesFromList(tail)
+ 
+             }
+@@ -176,6 +194,10 @@
+               //box.setMaterial(color)
+               box.setMaterial(redMaterial)
+               box.setDrawMode(DrawMode.LINE)
++              printShape(box)
++              if (wiredBox.getBoundsInParent.contains(box.asInstanceOf[Shape3D].getBoundsInParent)) {
++                worldRoot.getChildren.add(box)
++              }
+               box::getShapesFromList(tail)
+ 
+             }
+@@ -229,50 +251,56 @@
+     }
+ 
+      */
++
++    createSections(2, shapesList)
++
+     // criar as sections e retorna apenas as que têm shapes
+     def createSections(size: Double, shapes: List[Shape3D]): List[Section] = {
+-      val sec1: Section = (((0.0,0.0,0.0), size), shapesInSectionAsList((0.0, 0.0, 0.0), shapes, size))
+-      val sec2: Section = (((0.0 + size,0.0,0.0), size), shapesInSectionAsList((0.0 + size,0.0,0.0), shapes, size))
+-      val sec3: Section = (((0.0,0.0 + size,0.0), size), shapesInSectionAsList((0.0,0.0 + size,0.0), shapes, size))
+-      val sec4: Section = (((0.0 + size,0.0 + size,0.0), size), shapesInSectionAsList((0.0 + size,0.0 + size,0.0), shapes, size))
+-      val sec5: Section = (((0.0 + size,0.0,0.0), size), shapesInSectionAsList((0.0 + size,0.0,0.0), shapes, size))
+-      val sec6: Section = (((0.0 + size,0.0 + size,0.0), size), shapesInSectionAsList((0.0 + size,0.0 + size,0.0), shapes, size))
+-      val sec7: Section = (((0.0,0.0,0.0 + size), size), shapesInSectionAsList((0.0,0.0,0.0 + size), shapes, size))
+-      val sec8: Section = (((0.0 + size,0.0 + size,0.0 + size), size), shapesInSectionAsList((0.0 + size,0.0 + size,0.0 + size), shapes, size))
+-      val secList: List[Section] = List(sec1, sec2, sec3, sec4, sec5, sec6, sec7, sec8)
+-      def aux (secList: List[Section], secWithShapes: List[Section]): List[Section] = {
+-        secList match {
++      lazy val sec1: Section = (((0.0,0.0,0.0), size), shapesInSectionAsList((0.0, 0.0, 0.0), shapes, size))
++      lazy val sec2: Section = (((0.0 + size,0.0,0.0), size), shapesInSectionAsList((0.0 + size,0.0,0.0), shapes, size))
++      lazy val sec3: Section = (((0.0,0.0 + size,0.0), size), shapesInSectionAsList((0.0,0.0 + size,0.0), shapes, size))
++      lazy val sec4: Section = (((0.0 + size,0.0 + size,0.0), size), shapesInSectionAsList((0.0 + size,0.0 + size,0.0), shapes, size))
++      lazy val sec5: Section = (((0.0 + size,0.0,0.0), size), shapesInSectionAsList((0.0 + size,0.0,0.0), shapes, size))
++      lazy val sec6: Section = (((0.0 + size,0.0 + size,0.0), size), shapesInSectionAsList((0.0 + size,0.0 + size,0.0), shapes, size))
++      lazy val sec7: Section = (((0.0,0.0,0.0 + size), size), shapesInSectionAsList((0.0,0.0,0.0 + size), shapes, size))
++      lazy val sec8: Section = (((0.0 + size,0.0 + size,0.0 + size), size), shapesInSectionAsList((0.0 + size,0.0 + size,0.0 + size), shapes, size))
++
++      @tailrec
++      def aux (list: List[Section], secWithShapes: List[Section]): List[Section] = {
++        list match {
+           case Nil => secWithShapes
+           case x::tail => {
+             if (!x._2.isEmpty) {
+               aux(tail, x::secWithShapes)
+             }
+-            aux(tail, secWithShapes)
++            else {
++              aux(tail, secWithShapes)
++            }
+           }
+         }
+       }
+-      aux(secList, List.empty)
++      aux(List(sec1, sec2, sec3, sec4, sec5, sec6, sec7, sec8), List.empty)
+ 
+     }
+ 
+     // Devolve uma lista com todas as shapes que estão numa determinada section
+     def shapesInSectionAsList(point: Point, shapes: List[Shape3D], size: Double): List[Shape3D] = {
+-      val b = new Box()
+       def aux(point: Point, shapes: List[Shape3D], containedShapes: List[Shape3D]): List[Shape3D] = {
+         shapes match {
+           case Nil => containedShapes
+           case x::tail => {
+             val box = createShapeCube(point,size)
++            printShape(box)
+             if(box.asInstanceOf[Shape3D].getBoundsInParent.intersects(x.getBoundsInParent)) {
+ 
+-              if (!worldRoot.getChildren.contains(x)) {
+-                println(s"Encontramos o ${x}")
++              //if (!worldRoot.getChildren.contains(x)) {
++                //println(s"Encontramos o ${x}")
++                //worldRoot.getChildren.add(x)
+                 aux(point, tail, x::containedShapes)
+-                worldRoot.getChildren.add(x)
+-              }
+-              aux(point, tail, containedShapes)
++              //}
+             }
+-            aux(point, tail, containedShapes)
++            else
++              aux(point, tail, containedShapes)
+           }
+         }
+       }
+@@ -287,7 +315,6 @@
+       box.setScaleZ(point._3)
+       box.setMaterial(greenMaterial)
+       box.setDrawMode(DrawMode.LINE)
+-      //worldRoot.getChildren.add(box)
+       box
+     }
+ 
+@@ -301,8 +328,40 @@
+     val ocLeaf1 = main.scala.ppm.OcLeaf(sec1)
+     val oct1:main.scala.ppm.Octree[Placement] = main.scala.ppm.OcNode[Placement](placement1, ocLeaf1, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty, main.scala.ppm.OcEmpty)
+ 
++    //T4
++    def scaleOctree(fact:Double, oct:Octree[Placement]):Octree[Placement] = {
++      def scaleShapes(shapes: List[Shape3D]) = {
++        shapes match {
++          case Nil => ""
++          case x::tail => {
++            x.setTranslateX(x.getTranslateX * fact)
++            x.setTranslateY(x.getTranslateY * fact)
++            x.setTranslateZ(x.getTranslateZ * fact)
++            x.setScaleX(x.getScaleX * fact)
++            x.setScaleY(x.getScaleY * fact)
++            x.setScaleZ(x.getScaleZ * fact)
++          }
++        }
++      }
+ 
+ 
++      def aux[A](oct:Octree[Placement]):Octree[Placement] = {
++        oct match {
++          case OcEmpty => OcEmpty
++          case OcLeaf(section) => {
++            val sec = section.asInstanceOf[Section]
++            val newSection = ((sec._1._1._1 * fact, sec._1._1._2 * fact, sec._1._1._3 * fact, sec._1._2 * fact), sec._2)
++            scaleShapes(section.asInstanceOf[Section]._2.asInstanceOf[List[Shape3D]])
++            OcLeaf(newSection)
++          }
++          case OcNode(coords, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11) => {
++            val newCoords = ((coords._1._1 * fact, coords._1._2 * fact, coords._1._3 * fact), coords._2 * fact)
++            OcNode(newCoords, aux(up_00), aux(up_01), aux(up_10), aux(up_11), aux(down_00), aux(down_01), aux(down_10), aux(down_11))
++          }
++        }
++      }
++      aux(oct)
++    }
+ 
+     /*
+     //example of bounding boxes (corresponding to the octree oct1) added manually to the world
+@@ -336,6 +395,41 @@
+     println("stopped")
+   }
+ 
++  // Serve para testes
++  def printOctTree[A](octree: Octree[A]): Unit = {
++    octree match {
++      case OcEmpty => ""
++      case OcNode(coords, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11) => {
++        printOctTree(up_00)
++        printOctTree(up_01)
++        printOctTree(up_10)
++        printOctTree(up_11)
++        printOctTree(down_00)
++        printOctTree(down_01)
++        printOctTree(down_10)
++        printOctTree(down_11)
++      }
++      case OcLeaf(section) => {
++        printShapesList(section.asInstanceOf[Section]._2)
++      }
++    }
++  }
++
++  def printShapesList(shapes: List[Node]): Unit = {
++    shapes match {
++      case Nil => ""
++      case x::tail => {
++        printShape(x.asInstanceOf[Shape3D])
++        printShapesList(tail)
++      }
++    }
++  }
++
++  // Serve para testes
++  def printShape(shape: Shape3D): Unit = {
++    println(s"Class: ${shape.getClass}, ${shape.getTranslateX}, ${shape.getTranslateY}, ${shape.getTranslateZ}, ${shape.getScaleX}, ${shape.getScaleY}, ${shape.getScaleZ}")
++  }
++
+ }
+ 
+ object FxApp {
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6\" name=\"Changes\" comment=\"T1 - são lidas as shapes do ficheiro e introduzidas numa lista\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/config.txt\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/config.txt\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/scala/ppm/Main.scala\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/scala/ppm/Main.scala\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"CodeStyleSettingsInfer\">\r\n    <option name=\"done\" value=\"true\" />\r\n  </component>\r\n  <component name=\"Git.Merge.Settings\">\r\n    <option name=\"BRANCH\" value=\"Diogo-T1\" />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$\" value=\"main\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"MarkdownSettingsMigration\">\r\n    <option name=\"stateVersion\" value=\"1\" />\r\n  </component>\r\n  <component name=\"ProjectCodeStyleSettingsMigration\">\r\n    <option name=\"version\" value=\"2\" />\r\n  </component>\r\n  <component name=\"ProjectId\" id=\"27bsvBhXMq5vc79PCfeiwdeFTu6\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"flattenPackages\" value=\"true\" />\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n    <option name=\"sortByType\" value=\"true\" />\r\n    <option name=\"useFileNestingRules\" value=\"false\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">\r\n    <property name=\"RunOnceActivity.OpenProjectViewOnStart\" value=\"true\" />\r\n    <property name=\"RunOnceActivity.ShowReadmeOnStart\" value=\"true\" />\r\n    <property name=\"SHARE_PROJECT_CONFIGURATION_FILES\" value=\"true\" />\r\n    <property name=\"last_opened_file_path\" value=\"$PROJECT_DIR$/../../faculdade/Projetos/PPM\" />\r\n    <property name=\"settings.editor.selected.configurable\" value=\"preferences.lookFeel\" />\r\n  </component>\r\n  <component name=\"RunManager\" selected=\"Application.FxApp (1)\">\r\n    <configuration name=\"FxApp (1)\" type=\"Application\" factoryName=\"Application\" temporary=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"main.scala.ppm.FxApp\" />\r\n      <module name=\"PPM-Project\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"main.scala.ppm.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"FxApp\" type=\"Application\" factoryName=\"Application\" temporary=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"main.FxApp\" />\r\n      <module name=\"PPM-Project\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"main.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"Main\" type=\"Application\" factoryName=\"Application\" temporary=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"main.scala.ppm.Main\" />\r\n      <module name=\"PPM-Project\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <recent_temporary>\r\n      <list>\r\n        <item itemvalue=\"Application.Main\" />\r\n        <item itemvalue=\"Application.FxApp (1)\" />\r\n        <item itemvalue=\"Application.FxApp\" />\r\n        <item itemvalue=\"Application.Main\" />\r\n        <item itemvalue=\"Application.FxApp (1)\" />\r\n      </list>\r\n    </recent_temporary>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6\" name=\"Changes\" comment=\"\" />\r\n      <created>1649600350289</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1649600350289</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"T1 - são lidas as shapes do ficheiro e introduzidas numa lista\">\r\n      <created>1649938303396</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1649938303396</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"2\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State>\r\n              <option name=\"FILTERS\">\r\n                <map>\r\n                  <entry key=\"branch\">\r\n                    <value>\r\n                      <list>\r\n                        <option value=\"Diogo-T1\" />\r\n                      </list>\r\n                    </value>\r\n                  </entry>\r\n                </map>\r\n              </option>\r\n            </State>\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"T1 - são lidas as shapes do ficheiro e introduzidas numa lista\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"T1 - são lidas as shapes do ficheiro e introduzidas numa lista\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	
++++ b/.idea/workspace.xml	
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="ChangeListManager">
+-    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="T1 - são lidas as shapes do ficheiro e introduzidas numa lista">
++    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/config.txt" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" afterDir="false" />
+@@ -13,9 +13,6 @@
+   </component>
+   <component name="CodeStyleSettingsInfer">
+     <option name="done" value="true" />
+-  </component>
+-  <component name="Git.Merge.Settings">
+-    <option name="BRANCH" value="Diogo-T1" />
+   </component>
+   <component name="Git.Settings">
+     <option name="RECENT_BRANCH_BY_REPOSITORY">
+@@ -43,7 +40,7 @@
+     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../faculdade/Projetos/PPM" />
++    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../Projetos de apoio/ProjetoPPM-master/ProjetoPPM-master" />
+     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+   </component>
+   <component name="RunManager" selected="Application.FxApp (1)">
+@@ -82,11 +79,9 @@
+     </configuration>
+     <recent_temporary>
+       <list>
+-        <item itemvalue="Application.Main" />
+         <item itemvalue="Application.FxApp (1)" />
+         <item itemvalue="Application.FxApp" />
+         <item itemvalue="Application.Main" />
+-        <item itemvalue="Application.FxApp (1)" />
+       </list>
+     </recent_temporary>
+   </component>
+@@ -99,14 +94,6 @@
+       <option name="presentableId" value="Default" />
+       <updated>1649600350289</updated>
+     </task>
+-    <task id="LOCAL-00001" summary="T1 - são lidas as shapes do ficheiro e introduzidas numa lista">
+-      <created>1649938303396</created>
+-      <option name="number" value="00001" />
+-      <option name="presentableId" value="LOCAL-00001" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1649938303396</updated>
+-    </task>
+-    <option name="localTasksCounter" value="2" />
+     <servers />
+   </component>
+   <component name="Vcs.Log.Tabs.Properties">
+@@ -132,8 +119,4 @@
+       </map>
+     </option>
+   </component>
+-  <component name="VcsManagerConfiguration">
+-    <MESSAGE value="T1 - são lidas as shapes do ficheiro e introduzidas numa lista" />
+-    <option name="LAST_COMMIT_MESSAGE" value="T1 - são lidas as shapes do ficheiro e introduzidas numa lista" />
+-  </component>
+ </project>
+\ No newline at end of file
