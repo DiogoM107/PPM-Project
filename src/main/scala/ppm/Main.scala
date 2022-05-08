@@ -449,6 +449,17 @@ class Main extends Application {
     println("stopped")
   }
 
+  def sepia(color: Color):Color={
+    val r = Math.min(((color.getRed * 0.4) + (color.getGreen * 0.77) + (color.getBlue * 0.2)).asInstanceOf[Int], 255)
+    val g = Math.min(((color.getRed * 0.35) + (color.getGreen * 0.69) + (color.getBlue * 0.17)).asInstanceOf[Int], 255)
+    val b = Math.min(((color.getRed * 0.27) + (color.getGreen * 0.53) + (color.getBlue * 0.13)).asInstanceOf[Int], 255)
+    Color.rgb(r, g, b)
+  }
+
+  def greenRemove(color: Color): Color ={
+    Color.rgb(color.getRed.asInstanceOf[Int],0, color.getBlue.asInstanceOf[Int])
+  }
+
   // Serve para testes
   def printOctTree[A](octree: Octree[A]): Unit = {
     octree match {
