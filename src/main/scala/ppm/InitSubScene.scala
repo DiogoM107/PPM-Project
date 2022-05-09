@@ -1,11 +1,20 @@
+package main.scala.ppm
+
 import javafx.geometry.{Insets, Pos}
-import javafx.scene.{Group, PerspectiveCamera, SceneAntialiasing, SubScene}
+import javafx.scene.{Group, PerspectiveCamera, Scene, SceneAntialiasing, SubScene}
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.{Color, PhongMaterial}
-import javafx.scene.shape.{Cylinder, DrawMode, Line}
+import javafx.scene.shape.{Box, Cylinder, DrawMode, Line}
 import javafx.scene.transform.Rotate
 
 object InitSubScene{
+
+
+  val blackMaterial = new PhongMaterial()
+  blackMaterial.setDiffuseColor(Color.rgb(0, 0, 0))
+
+  val whiteMaterial = new PhongMaterial()
+  whiteMaterial.setDiffuseColor(Color.rgb(255, 255, 255))
 
   //Materials to be applied to the 3D objects
   val redMaterial = new PhongMaterial()
@@ -69,9 +78,31 @@ object InitSubScene{
   StackPane.setMargin(cameraView, new Insets(5))
 
   val root = new StackPane(subScene,cameraView)
+  val wiredBox = new Box(32, 32, 32)
+  wiredBox.setTranslateX(16)
+  wiredBox.setTranslateY(16)
+  wiredBox.setTranslateZ(16)
+  wiredBox.setMaterial(redMaterial)
+  wiredBox.setDrawMode(DrawMode.LINE)
 
-  root.setOnMouseClicked((event) => {
-    camVolume.setTranslateX(camVolume.getTranslateX + 2)
-  })
+  val cylinder1 = new Cylinder(0.5, 1, 10)
+  cylinder1.setTranslateX(2)
+  cylinder1.setTranslateY(2)
+  cylinder1.setTranslateZ(2)
+  cylinder1.setScaleX(2)
+  cylinder1.setScaleY(2)
+  cylinder1.setScaleZ(2)
+  cylinder1.setMaterial(greenMaterial)
+
+  val box1 = new Box(1, 1, 1) //
+  box1.setTranslateX(5)
+  box1.setTranslateY(5)
+  box1.setTranslateZ(5)
+  box1.setMaterial(greenMaterial)
+
+  subScene.widthProperty.bind(root.widthProperty)
+  subScene.heightProperty.bind(root.heightProperty)
+
+  val scene = new Scene(root, 810, 610, true, SceneAntialiasing.BALANCED)
 }
 
