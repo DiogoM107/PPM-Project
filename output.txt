@@ -1,1 +1,13 @@
-OcNode(((0.0,0.0,0.0),32.0),OcEmpty,OcEmpty,OcEmpty,OcEmpty,OcNode(((0.0,0.0,0.0),16.0),OcEmpty,OcNode(((8.0,8.0,0.0),8.0),OcEmpty,OcEmpty,OcEmpty,OcEmpty,OcLeaf((((8.0,8.0,0.0),4.0),List(Box@256a77b0))),OcEmpty,OcEmpty,OcEmpty),OcEmpty,OcEmpty,OcNode(((0.0,0.0,0.0),8.0),OcEmpty,OcEmpty,OcEmpty,OcEmpty,OcLeaf((((0.0,0.0,0.0),4.0),List(Cylinder@10feb52e))),OcEmpty,OcEmpty,OcEmpty),OcEmpty,OcEmpty,OcEmpty),OcEmpty,OcEmpty,OcEmpty)
+Class: Box, 8.0, 8.0, 24.0, 1.0, 1.0, 1.0
+Class: Box, 2.0, 2.0, 6.0, 1.0, 1.0, 1.0
+Class: Box, 6.0, 2.0, 2.0, 1.0, 1.0, 1.0
+Class: Box, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0
+Class: Box, 4.0, 4.0, 4.0, 1.0, 1.0, 1.0
+Class: Box, 8.0, 8.0, 8.0, 1.0, 1.0, 1.0
+Class: Box, 24.0, 24.0, 24.0, 1.0, 1.0, 1.0
+Class: Box, 16.0, 16.0, 16.0, 1.0, 1.0, 1.0
+Class: Box, 24.0, 24.0, 24.0, 8.0, 8.0, 8.0
+Class: Box, 8.0, 8.0, 24.0, 8.0, 8.0, 8.0
+Class: Box, 2.0, 2.0, 6.0, 2.0, 2.0, 2.0
+Class: Cylinder, 6.0, 2.0, 2.0, 2.0, 2.0, 2.0
+Class: Cylinder, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0

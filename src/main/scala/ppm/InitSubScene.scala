@@ -1,14 +1,14 @@
 package main.scala.ppm
 
+import javafx.fxml.FXMLLoader
 import javafx.geometry.{Insets, Pos}
-import javafx.scene.{Group, PerspectiveCamera, Scene, SceneAntialiasing, SubScene}
+import javafx.scene.{Group, Parent, PerspectiveCamera, Scene, SceneAntialiasing, SubScene}
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.{Color, PhongMaterial}
 import javafx.scene.shape.{Box, Cylinder, DrawMode, Line}
 import javafx.scene.transform.Rotate
 
 object InitSubScene{
-
 
   val blackMaterial = new PhongMaterial()
   blackMaterial.setDiffuseColor(Color.rgb(0, 0, 0))
@@ -77,7 +77,10 @@ object InitSubScene{
   StackPane.setAlignment(cameraView, Pos.BOTTOM_RIGHT)
   StackPane.setMargin(cameraView, new Insets(5))
 
-  val root = new StackPane(subScene,cameraView)
+  val fxmlLoader = new FXMLLoader(getClass.getResource("Controller.fxml"))
+  val mainViewRoot: Parent = fxmlLoader.load()
+
+  val root = new StackPane(subScene,cameraView,mainViewRoot)
   val wiredBox = new Box(32, 32, 32)
   wiredBox.setTranslateX(16)
   wiredBox.setTranslateY(16)

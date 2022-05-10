@@ -48,7 +48,6 @@ class Main extends Application {
 
   def runWithTextUI(fileName: String, octree: Octree[Placement]): Octree[Placement] = {
 
-    InitSubScene
     val opt = getOption()
     opt match {
       case 1 => {
@@ -68,7 +67,7 @@ class Main extends Application {
 
   def runTest(fileName: String, shapes: List[Shape3D]) = {
 
-    var octree = createOcTree(MAX_SCALE, worldRoot, shapes)
+    octree = createOcTree(MAX_SCALE, worldRoot, shapes)
     //Mouse left click interaction
     scene.setOnMouseClicked((event) => {
       camVolume.setTranslateX(camVolume.getTranslateX + 2)

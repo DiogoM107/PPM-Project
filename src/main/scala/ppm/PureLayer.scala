@@ -22,16 +22,15 @@ object PureLayer {
   //Box and Cylinder are subclasses of Shape3D
   type Section = (Placement, List[Node]) //example: ( ((0.0,0.0,0.0), 2.0), List(new Cylinder(0.5, 1, 10)))
 
+  var octree: Octree[Placement] = _
 
-  //T2 - criar uma OcTree (Falta saber como definir o MIN_SCALE
+  //T2
   def createOcTree(scale: Double, root: Group, shapesList: List[Shape3D]): Octree[Placement] = {
     val placement: Placement = ((0, 0, 0), scale)
     createOcNode(placement, root, shapesList)
   }
 
   //TODO - verificar como fazer quando shape está entre dois leafs
-  // Talvez enviar a lista dos shapes como argumento na funcao containsAShape,
-  // e essa funcao devolve uma nova lista de shapes sem a(s) que foi(foram) inserida(s)
   def createOcNode(placement: Placement, root: Group, shapesList: List[Shape3D]): Octree[Placement] = {
     val xyz = placement._1
     val size = placement._2 / 2
@@ -86,7 +85,12 @@ object PureLayer {
     box.setTranslateX(size / 2 + xyz._1)
     box.setTranslateY(size / 2 + xyz._2)
     box.setTranslateZ(size / 2 + xyz._3)
-    box.setMaterial(blueMaterial)
+    if (box.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.asInstanceOf[Shape3D].getBoundsInParent)) {
+      box.setMaterial(blueMaterial)
+    }
+    else {
+      box.setMaterial(whiteMaterial)
+    }
     box.setDrawMode(DrawMode.LINE)
     box
   }
@@ -175,8 +179,8 @@ object PureLayer {
   }
 
   //TODO - deve enviar uma lista com os objetos novos e não alterar diretamente
-  //T3 - Estou a usar o x.asInstanceOf[Shape3D].getDrawMode != DrawMode.FILL para não mudar a cor das shapes enviadas
-  def changeColor(shapes: List[Shape3D]): Unit = {
+  //T3
+  def changeColor(shapes: List[Shape3D]): List[Shape3D] = {
     shapes match {
       case Nil => Nil
       case x :: xs => {
@@ -188,7 +192,7 @@ object PureLayer {
             x.asInstanceOf[Shape3D].setMaterial(blueMaterial)
           }
         }
-        changeColor(xs)
+        x::changeColor(xs)
       }
     }
   }

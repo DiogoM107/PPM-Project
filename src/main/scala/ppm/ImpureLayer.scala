@@ -1,15 +1,13 @@
 package main.scala.ppm
 
 import javafx.scene.Node
-import javafx.scene.shape.Shape3D
-import main.scala.ppm.PureLayer.{Placement, Section}
+import javafx.scene.shape.{Box, Shape3D}
+import main.scala.ppm.InitSubScene.worldRoot
+import main.scala.ppm.PureLayer.{Placement, Section, getAllShapesFromRoot}
 
 import java.io.{File, PrintWriter}
 
 object ImpureLayer {
-
-
-
 
   // Serve para testes
   def printOctTree[A](octree: Octree[A]): Unit = {
@@ -48,7 +46,10 @@ object ImpureLayer {
 
   def writeToFile(file: String, oct: Octree[Placement]) = {
     val writer = new PrintWriter(new File(file))
-    writer.write(oct.toString)
+    //Deve ir buscar apenas as shapes dentro da octree
+    getAllShapesFromRoot(worldRoot).map(shape => {
+      writer.write(s"Class: ${if(shape.isInstanceOf[Box]) "Box" else "Cylinder"}, ${shape.getTranslateX}, ${shape.getTranslateY}, ${shape.getTranslateZ}, ${shape.getScaleX}, ${shape.getScaleY}, ${shape.getScaleZ}\n")
+    })
     writer.close
   }
 }

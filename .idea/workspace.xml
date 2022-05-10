@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="Criada camada pura e camada impura,&#10;algumas melhorias">
-      <change afterPath="$PROJECT_DIR$/src/main/scala/ppm/TextUI.scala" afterDir="false" />
+    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="Adicionadas bibliotecas,&#10;Alguns melhoramentos">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/openjfx_17_0_2_windows_x64_bin_sdk.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/scala/ppm/Controller.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PPM-Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/PPM-Project.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/config.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/output.txt" beforeDir="false" afterPath="$PROJECT_DIR$/output.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Controller.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Controller.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/ImpureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/ImpureLayer.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/InitSubScene.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/InitSubScene.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" afterDir="false" />
     </list>
@@ -16,6 +21,13 @@
   </component>
   <component name="CodeStyleSettingsInfer">
     <option name="done" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="FxmlFile" />
+      </list>
+    </option>
   </component>
   <component name="Git.Merge.Settings">
     <option name="BRANCH" value="Diogo-T1" />
@@ -54,10 +66,10 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$USER_HOME$/Downloads/openjfx-18.0.1_windows-x64_bin-sdk.zip" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Downloads/openjfx-17.0.2_windows-x64_bin-sdk.zip" />
     <property name="project.structure.last.edited" value="Libraries" />
-    <property name="project.structure.proportion" value="0.0" />
-    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RunManager" selected="Application.Main">
@@ -155,7 +167,14 @@
       <option name="project" value="LOCAL" />
       <updated>1652194004372</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Adicionadas bibliotecas,&#10;Alguns melhoramentos">
+      <created>1652201861813</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1652201861813</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -188,6 +207,7 @@
     <MESSAGE value="Minor fixes" />
     <MESSAGE value="Adicionado mapColourEffect,&#10;Minor fixes" />
     <MESSAGE value="Criada camada pura e camada impura,&#10;algumas melhorias" />
-    <option name="LAST_COMMIT_MESSAGE" value="Criada camada pura e camada impura,&#10;algumas melhorias" />
+    <MESSAGE value="Adicionadas bibliotecas,&#10;Alguns melhoramentos" />
+    <option name="LAST_COMMIT_MESSAGE" value="Adicionadas bibliotecas,&#10;Alguns melhoramentos" />
   </component>
 </project>
