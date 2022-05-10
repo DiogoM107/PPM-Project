@@ -9,6 +9,8 @@ import java.io.{File, PrintWriter}
 object ImpureLayer {
 
 
+
+
   // Serve para testes
   def printOctTree[A](octree: Octree[A]): Unit = {
     octree match {

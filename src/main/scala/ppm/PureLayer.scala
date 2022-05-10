@@ -38,7 +38,6 @@ object PureLayer {
     val nodeBox = createShapeCube(placement)
     if (containsAShape(nodeBox, root, shapesList)) {
 
-      //TODO - alterar isto, não deve estar a desenhar nesta função (?)
       root.getChildren.add(nodeBox)
       if (placement._2 > MIN_SCALE) {
         OcNode(placement,
@@ -61,7 +60,6 @@ object PureLayer {
     else OcEmpty
   }
 
-  //TODO - deve receber a lista como argumento
   def getContainedShapes(node: Node, root: Group, shapesList: List[Shape3D]): List[Shape3D] = {
     def checkIfNodeContainsAShapeFromList(node: Node, list: List[Shape3D], contained: List[Shape3D]): List[Shape3D] = {
       list match {
@@ -133,8 +131,6 @@ object PureLayer {
             cylinder.setScaleZ(scaleXYZ._3)
             cylinder.setMaterial(color)
             cylinder.setDrawMode(DrawMode.FILL)
-            //TODO - alterar, não deve estar a desenhar nesta funcao
-            root.getChildren.add(cylinder)
             cylinder :: getShapesFromList(tail, root)
           }
           case "cube" => {
@@ -147,8 +143,6 @@ object PureLayer {
             box.setScaleZ(scaleXYZ._3)
             box.setMaterial(color)
             box.setDrawMode(DrawMode.FILL)
-            //TODO - alterar, não deve estar a desenhar nesta funcao
-            root.getChildren.add(box)
             box :: getShapesFromList(tail, root)
 
           }
@@ -202,8 +196,7 @@ object PureLayer {
   //T1
   def createShapesFromFile(file: String, root: Group): List[Shape3D] = {
     val lines = Source.fromFile(file).getLines().toList
-    val shapes: List[Shape3D] = getShapesFromList(lines, root)
-    shapes
+    getShapesFromList(lines, root)
   }
 
   //TODO - verificar como fazer
