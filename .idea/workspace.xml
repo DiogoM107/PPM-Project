@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="Primeira tentativa do T7,&#10;algumas melhorias">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/config.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output.txt" beforeDir="false" afterPath="$PROJECT_DIR$/output.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Controller.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Controller.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/ImpureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/ImpureLayer.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" afterDir="false" />
-    </list>
+    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="Primeira tentativa do T7,&#10;algumas melhorias" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -30,7 +23,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="T7" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
