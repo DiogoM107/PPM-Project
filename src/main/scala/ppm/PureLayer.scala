@@ -25,19 +25,35 @@ object PureLayer {
   var octree: Octree[Placement] = _
 
   //T2
+
+  /**
+   * Aqui vamos começar a criar a octree
+   * @param scale - o tamanho do maior nó da octree. Segundo o enunciado, deve ter um tamanho de 32
+   * @param root - o worldRoot, precisamos como argumento para poder inserir as partições (Nodes) criados no mapa
+   * @param shapesList - Lista com as shapes que carregamos pelo ficheiro. Precisamos para saber que partições é que temos que desenhar
+   * @return
+   */
   def createOcTree(scale: Double, root: Group, shapesList: List[Shape3D]): Octree[Placement] = {
     val placement: Placement = ((0, 0, 0), scale)
     createOcNode(placement, root, shapesList)
   }
 
-  //TODO - verificar como fazer quando shape está entre dois leafs
+  /**
+   * Aqui criamos, recursivamente, todos as partições da OcTree.
+   * @param placement - O placement da partição superior
+   * @param root - O worldRoot, necessário para desenhar as partições
+   * @param shapesList - A lista de shapes que carregamos no ficheiro
+   * @return
+   */
   def createOcNode(placement: Placement, root: Group, shapesList: List[Shape3D]): Octree[Placement] = {
     val xyz = placement._1
     val size = placement._2 / 2
+    //Primeiro passo é criar a partição
     val nodeBox = createShapeCube(placement)
     if (containsAShape(nodeBox, root, shapesList)) {
-
+      //Se a particao que criamos tiver alguma shape 100% dentro dela, então vamos desenhá-la
       root.getChildren.add(nodeBox)
+      //O tamanho minimo duma partição foi definido como 2, portanto será aí que vai parar a recursividade
       if (placement._2 > MIN_SCALE) {
         OcNode(placement,
           createOcNode(((xyz._1, xyz._2 + size, xyz._3), (size)), root, shapesList),
@@ -51,14 +67,28 @@ object PureLayer {
         )
       }
       else {
+        //Se estivermos no tamanho minimo, então vamos criar uma OcLeaf, que é uma partição que tem uma lista com todos os objetos contidos nela
         val newSection: Section = (placement, getContainedShapes(nodeBox, root, shapesList))
         OcLeaf(newSection)
       }
-
     }
+    //Pode acontecer uma partição ter um objeto que não está 100% contido nela. Nesse caso, vamos tornar o OcNode pai numa ocleaf,
+    // para ser possível ter uma ocleaf com o objeto 100% dentro dele
+    else if (intersectAShape(nodeBox, root, shapesList)) {
+      val newSection: Section = (placement, getIntersectedShapes(nodeBox, root, shapesList))
+      OcLeaf(newSection)
+    }
+      //Se a partição não tiver nenhum objeto contido nela nem está a intersectar nada, então não vale a pena desenvolvê-la.
     else OcEmpty
   }
 
+  /**
+   * Função vai devolver todos os objetos que estão contidos num determinado node
+   * @param node - O node que vamos ver se tem objetos contidos
+   * @param root - O worldRoot
+   * @param shapesList - A lista dos objetos adicionados no ficheiro
+   * @return
+   */
   def getContainedShapes(node: Node, root: Group, shapesList: List[Shape3D]): List[Shape3D] = {
     def checkIfNodeContainsAShapeFromList(node: Node, list: List[Shape3D], contained: List[Shape3D]): List[Shape3D] = {
       list match {
@@ -77,6 +107,31 @@ object PureLayer {
     checkIfNodeContainsAShapeFromList(node, shapesList, Nil)
   }
 
+  def getIntersectedShapes(node: Node, root: Group, shapesList: List[Shape3D]): List[Shape3D] = {
+    def checkIfNodeIntersectssAShapeFromList(node: Node, list: List[Shape3D], contained: List[Shape3D]): List[Shape3D] = {
+      list match {
+        case Nil => contained
+        case x :: xs => {
+          if (node.getBoundsInParent.intersects(x.asInstanceOf[Shape3D].getBoundsInParent)) {
+            checkIfNodeIntersectssAShapeFromList(node, xs, x :: contained)
+          }
+          else {
+            checkIfNodeIntersectssAShapeFromList(node, xs, contained)
+          }
+        }
+      }
+    }
+
+    checkIfNodeIntersectssAShapeFromList(node, shapesList, Nil)
+  }
+
+  def getContainedAndIntersectedShapes(node: Node, root: Group, shapesList: List[Shape3D]): List[Shape3D] = {
+    val intersected: List[Shape3D] = getIntersectedShapes(node, root, shapesList)
+    val contained: List[Shape3D] = getContainedShapes(node, root, shapesList)
+    val both: List[Shape3D] = intersected.appendedAll(contained)
+    both
+  }
+
   // Cria um cubo com o placement enviado como parametro
   def createShapeCube(placement: Placement): Box = {
     val xyz = placement._1
@@ -93,6 +148,24 @@ object PureLayer {
     }
     box.setDrawMode(DrawMode.LINE)
     box
+  }
+
+  def intersectAShape(node: Node, root: Group, shapesList: List[Shape3D]): Boolean = {
+    def checkIfNodeIntersectsShape(node: Node, list: List[Shape3D]): Boolean = {
+      list match {
+        case Nil => false
+        case x :: xs => {
+          if (node.getBoundsInParent.intersects(x.asInstanceOf[Shape3D].getBoundsInParent)) {
+            true
+          }
+          else {
+            checkIfNodeIntersectsShape(node, xs)
+          }
+        }
+      }
+    }
+
+    checkIfNodeIntersectsShape(node, shapesList)
   }
 
   def containsAShape(node: Node, root: Group, shapesList: List[Shape3D]): Boolean = {
@@ -253,7 +326,6 @@ object PureLayer {
       }
     }
 
-    //TODO - deve devolver uma nova octree sem alterar a antiga
     def scaleOctNodes[A](oct: Octree[Placement]): Octree[Placement] = {
       oct match {
         case OcEmpty => OcEmpty

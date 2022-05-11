@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="Adicionadas bibliotecas,&#10;Alguns melhoramentos">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/openjfx_17_0_2_windows_x64_bin_sdk.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/ppm/Controller.fxml" afterDir="false" />
+    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="Primeira tentativa do T7,&#10;algumas melhorias">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PPM-Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/PPM-Project.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/config.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/output.txt" beforeDir="false" afterPath="$PROJECT_DIR$/output.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Controller.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Controller.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/ImpureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/ImpureLayer.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/InitSubScene.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/InitSubScene.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -66,7 +61,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$USER_HOME$/Downloads/openjfx-17.0.2_windows-x64_bin-sdk.zip" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -174,7 +169,14 @@
       <option name="project" value="LOCAL" />
       <updated>1652201861813</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Primeira tentativa do T7,&#10;algumas melhorias">
+      <created>1652221479491</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1652221479491</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -208,6 +210,7 @@
     <MESSAGE value="Adicionado mapColourEffect,&#10;Minor fixes" />
     <MESSAGE value="Criada camada pura e camada impura,&#10;algumas melhorias" />
     <MESSAGE value="Adicionadas bibliotecas,&#10;Alguns melhoramentos" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adicionadas bibliotecas,&#10;Alguns melhoramentos" />
+    <MESSAGE value="Primeira tentativa do T7,&#10;algumas melhorias" />
+    <option name="LAST_COMMIT_MESSAGE" value="Primeira tentativa do T7,&#10;algumas melhorias" />
   </component>
 </project>

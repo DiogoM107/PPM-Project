@@ -27,12 +27,6 @@ class Controller {
   private var upButton: Button = _
 
   @FXML
-  private var leftButton: Button = _
-
-  @FXML
-  private var rightButton: Button = _
-
-  @FXML
   private var downButton: Button = _
 
   def onScaleUpButtonClick() = {
@@ -58,16 +52,6 @@ class Controller {
 
   def onDownButtonClick() = {
     camVolume.setTranslateX(camVolume.getTranslateX + 2)
-    changeColor(getAllShapesFromRoot(worldRoot))
-  }
-
-  def onLeftButtonClick() = {
-    camVolume.setTranslateX(camVolume.getTranslateY - 2)
-    changeColor(getAllShapesFromRoot(worldRoot))
-  }
-
-  def onRightButtonClick() = {
-    camVolume.setTranslateX(camVolume.getTranslateY + 2)
     changeColor(getAllShapesFromRoot(worldRoot))
   }
 }
