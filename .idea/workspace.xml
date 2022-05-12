@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="Primeira tentativa do T7,&#10;algumas melhorias" />
+    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="Adicionado o Controller.fxml">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PPM-Project/main/scala/ppm/Controller.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PPM-Project/main/scala/ppm/Controller.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/output.txt" beforeDir="false" afterPath="$PROJECT_DIR$/output.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Controller.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Controller.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/InitSubScene.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/InitSubScene.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/TextUI.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/TextUI.scala" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -169,7 +178,14 @@
       <option name="project" value="LOCAL" />
       <updated>1652221479491</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Adicionado o Controller.fxml">
+      <created>1652292142020</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1652292142020</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -204,6 +220,7 @@
     <MESSAGE value="Criada camada pura e camada impura,&#10;algumas melhorias" />
     <MESSAGE value="Adicionadas bibliotecas,&#10;Alguns melhoramentos" />
     <MESSAGE value="Primeira tentativa do T7,&#10;algumas melhorias" />
-    <option name="LAST_COMMIT_MESSAGE" value="Primeira tentativa do T7,&#10;algumas melhorias" />
+    <MESSAGE value="Adicionado o Controller.fxml" />
+    <option name="LAST_COMMIT_MESSAGE" value="Adicionado o Controller.fxml" />
   </component>
 </project>

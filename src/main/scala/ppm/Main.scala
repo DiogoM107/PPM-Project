@@ -3,11 +3,15 @@ package main.scala.ppm
 import javafx.application.Application
 import javafx.scene.input.KeyCode
 import javafx.scene.shape.Shape3D
-import javafx.stage.Stage
+import javafx.stage.{FileChooser, Stage}
 import main.scala.ppm.ImpureLayer._
 import main.scala.ppm.InitSubScene._
 import main.scala.ppm.PureLayer._
 import main.scala.ppm.TextUI._
+
+import java.io.File
+import java.nio.file.Paths
+import scala.annotation.tailrec
 
 class Main extends Application {
 
@@ -22,19 +26,13 @@ class Main extends Application {
     val params = getParameters
     println("Program arguments:" + params.getRaw)
 
-    val fileName = getFileName()
-
-    //setup and start the Stage
     stage.setTitle("PPM Project 21/22")
     stage.setScene(scene)
     stage.show
 
-    val shapes = createShapesFromFile(fileName, worldRoot)
-    shapes.map(x => worldRoot.getChildren.add(x))
+    //runWithTextUI(stage)
 
-    //octree = runWithTextUI(fileName, octree)
-
-    runTest(fileName, shapes)
+    runGUI(stage)
 
   }
 
@@ -46,48 +44,58 @@ class Main extends Application {
     println("stopped")
   }
 
-  def runWithTextUI(fileName: String, octree: Octree[Placement]): Octree[Placement] = {
+  //TODO - Enquanto esta funcao corre, o stage não é carregado..
+  def runWithTextUI(stage: Stage): Any = {
 
-    val opt = getOption()
-    opt match {
-      case 1 => {
-        scaleOctree(2, octree, worldRoot)
+    val fileName = getFileName()
+    val shapes = createShapesFromFile(fileName)
+    shapes.map(x => worldRoot.getChildren.add(x))
+    octree = createOcTree(MAX_SCALE, worldRoot, shapes)
+    @tailrec
+    def runLoop (stage: Stage): Any = {
+      val opt = getOption()
+      opt match {
+        case 1 => {
+          octree = scaleOctree(2, octree, worldRoot)
+        }
+        case 2 => {
+          octree = scaleOctree(0.5, octree, worldRoot)
+        }
+        case 3 => {
+          octree = mapColourEffect(sepia, octree)
+        }
+        case 4 => {
+          octree = mapColourEffect(greenRemove, octree)
+        }
+        case 5 => {
+          System.exit(0)
+        }
       }
-      case 2 => {
-        scaleOctree(0.5, octree, worldRoot)
-      }
-      case 3 => {
-        mapColourEffect(sepia, octree)
-      }
-      case 4 => {
-        mapColourEffect(greenRemove, octree)
-      }
+      runLoop(stage)
     }
+    runLoop(stage)
   }
 
-  def runTest(fileName: String, shapes: List[Shape3D]) = {
+  def runGUI(stage: Stage) = {
 
-    octree = createOcTree(MAX_SCALE, worldRoot, shapes)
-    //Mouse left click interaction
-    scene.setOnMouseClicked((event) => {
-      camVolume.setTranslateX(camVolume.getTranslateX + 2)
-      //TODO - isto devia devolver a lista das shapes com as cores alteradas, e voltar a ser criada a octree
-      changeColor(getAllShapesFromRoot(worldRoot))
-      writeToFile(OUTPUT_FILE, octree)
-      //worldRoot.getChildren.removeAll()
-    })
+    val fileChooser: FileChooser = new FileChooser()
+    fileChooser.setTitle("Ficheiro de configuração.")
+    val currentDir = Paths.get(".").toAbsolutePath().normalize().toString();
+    fileChooser.setInitialDirectory(new File(currentDir))
+    val extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt")
+    fileChooser.getExtensionFilters.add(extFilter)
+    val file = fileChooser.showOpenDialog(stage)
+    println(s"File: ${file}")
 
-    //TODO - apenas para testar o scaleOctree
-    scene.setOnKeyPressed(k => {
-      if (k.getCode == KeyCode.UP)
-        octree = scaleOctree(2, octree, worldRoot)
-      else if (k.getCode() == KeyCode.DOWN)
-        octree = scaleOctree(0.5, octree, worldRoot)
-      else if (k.getCode() == KeyCode.S)
-        octree = mapColourEffect(sepia, octree)
-      else if (k.getCode() == KeyCode.E)
-        octree = mapColourEffect(greenRemove, octree)
-    })
+    if (file != null) {
+      val shapes = createShapesFromFile(file.getName)
+      shapes.map(x => worldRoot.getChildren.add(x))
+      octree = createOcTree(MAX_SCALE, worldRoot, shapes)
+    }
+    else {
+      println("Programa terminado!")
+      System.exit(0)
+    }
   }
 
 }

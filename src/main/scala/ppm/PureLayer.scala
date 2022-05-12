@@ -187,7 +187,7 @@ object PureLayer {
   }
 
   //T1
-  def getShapesFromList(lst: List[String], root: Group): List[Shape3D] = {
+  def getShapesFromList(lst: List[String]): List[Shape3D] = {
     lst match {
       case Nil => Nil
       case x :: tail => {
@@ -208,7 +208,7 @@ object PureLayer {
             cylinder.setScaleZ(scaleXYZ._3)
             cylinder.setMaterial(color)
             cylinder.setDrawMode(DrawMode.FILL)
-            cylinder :: getShapesFromList(tail, root)
+            cylinder :: getShapesFromList(tail)
           }
           case "cube" => {
             val box = new Box(1, 1, 1)
@@ -220,11 +220,11 @@ object PureLayer {
             box.setScaleZ(scaleXYZ._3)
             box.setMaterial(color)
             box.setDrawMode(DrawMode.FILL)
-            box :: getShapesFromList(tail, root)
+            box :: getShapesFromList(tail)
 
           }
           case _ => {
-            getShapesFromList(tail, root)
+            getShapesFromList(tail)
           }
         }
       }
@@ -271,9 +271,9 @@ object PureLayer {
   }
 
   //T1
-  def createShapesFromFile(file: String, root: Group): List[Shape3D] = {
+  def createShapesFromFile(file: String): List[Shape3D] = {
     val lines = Source.fromFile(file).getLines().toList
-    getShapesFromList(lines, root)
+    getShapesFromList(lines)
   }
 
   //TODO - verificar como fazer
@@ -306,7 +306,6 @@ object PureLayer {
 
     filterListOfObjects(getListOfObjects(oct), Nil)
   }
-
 
   //T4 - deve devolver a ocTree
   def scaleOctree(fact: Double, oct: Octree[Placement], root: Group): Octree[Placement] = {
@@ -348,7 +347,6 @@ object PureLayer {
     changeColor(getAllShapesFromRoot(root))
     oct2
   }
-
 
   //TODO - deve devolver uma nova octree sem alterar a antiga
   //T5

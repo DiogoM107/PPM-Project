@@ -45,8 +45,9 @@ object TextUI {
     println("2 - Escalar a octree (3x).")
     println("3 - Aplicar efeito de cor (sépia).")
     println("4 - Aplicar efeito de cor (remover verdes).")
+    println("5 - Sair")
     //Opcao maxima do menu
-    4
+    5
   }
 
 }
