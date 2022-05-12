@@ -50,7 +50,7 @@ object PureLayer {
     val size = placement._2 / 2
     //Primeiro passo é criar a partição
     val nodeBox = createShapeCube(placement)
-    if (containsAShape(nodeBox, root, shapesList)) {
+    if (containsAShape(nodeBox, root, shapesList) && !intersectAShape(nodeBox, root, shapesList)) {
       //Se a particao que criamos tiver alguma shape 100% dentro dela, então vamos desenhá-la
       root.getChildren.add(nodeBox)
       //O tamanho minimo duma partição foi definido como 2, portanto será aí que vai parar a recursividade
@@ -155,7 +155,7 @@ object PureLayer {
       list match {
         case Nil => false
         case x :: xs => {
-          if (node.getBoundsInParent.intersects(x.asInstanceOf[Shape3D].getBoundsInParent)) {
+          if (node.getBoundsInParent.intersects(x.asInstanceOf[Shape3D].getBoundsInParent) && !node.getBoundsInParent.contains(x.asInstanceOf[Shape3D].getBoundsInParent)) {
             true
           }
           else {
