@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="GUI já procura por ficheiro">
+    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="Fix no createOcNode">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PPM-Project/main/scala/ppm/Controller.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PPM-Project/main/scala/ppm/Controller.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Controller.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Controller.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/output.txt" beforeDir="false" afterPath="$PROJECT_DIR$/output.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Controller.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Controller.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/ImpureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/ImpureLayer.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -188,7 +190,14 @@
       <option name="project" value="LOCAL" />
       <updated>1652355207488</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Fix no createOcNode">
+      <created>1652355991132</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1652355991132</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -225,6 +234,7 @@
     <MESSAGE value="Primeira tentativa do T7,&#10;algumas melhorias" />
     <MESSAGE value="Adicionado o Controller.fxml" />
     <MESSAGE value="GUI já procura por ficheiro" />
-    <option name="LAST_COMMIT_MESSAGE" value="GUI já procura por ficheiro" />
+    <MESSAGE value="Fix no createOcNode" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix no createOcNode" />
   </component>
 </project>

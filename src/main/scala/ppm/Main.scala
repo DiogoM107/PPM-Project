@@ -15,7 +15,6 @@ import scala.annotation.tailrec
 
 class Main extends Application {
 
-  val OUTPUT_FILE = "output.txt"
 
   /*
     Additional information about JavaFX basic concepts (e.g. Stage, Scene) will be provided in week7
@@ -48,9 +47,9 @@ class Main extends Application {
   def runWithTextUI(stage: Stage): Any = {
 
     val fileName = getFileName()
-    val shapes = createShapesFromFile(fileName)
-    shapes.map(x => worldRoot.getChildren.add(x))
-    octree = createOcTree(MAX_SCALE, worldRoot, shapes)
+    val shapesAndScale = createShapesAndScaleFromFile(fileName)
+    shapesAndScale._1.map(x => worldRoot.getChildren.add(x))
+    octree = createOcTree(MAX_SCALE * shapesAndScale._2, worldRoot, shapesAndScale._1)
     @tailrec
     def runLoop (stage: Stage): Any = {
       val opt = getOption()
@@ -68,9 +67,11 @@ class Main extends Application {
           octree = mapColourEffect(greenRemove, octree)
         }
         case 5 => {
+          writeToFile(OUTPUT_FILE, octree)
           System.exit(0)
         }
       }
+      writeToFile(OUTPUT_FILE, octree)
       runLoop(stage)
     }
     runLoop(stage)
@@ -88,9 +89,9 @@ class Main extends Application {
     println(s"File: ${file}")
 
     if (file != null) {
-      val shapes = createShapesFromFile(file.getName)
-      shapes.map(x => worldRoot.getChildren.add(x))
-      octree = createOcTree(MAX_SCALE, worldRoot, shapes)
+      val shapesAndScale = createShapesAndScaleFromFile(file.getName)
+      shapesAndScale._1.map(x => worldRoot.getChildren.add(x))
+      octree = createOcTree(MAX_SCALE * shapesAndScale._2, worldRoot, shapesAndScale._1)
     }
     else {
       println("Programa terminado!")

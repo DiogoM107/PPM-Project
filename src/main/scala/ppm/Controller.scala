@@ -3,6 +3,7 @@ package main.scala.ppm
 import javafx.fxml.FXML
 import javafx.scene.control.Button
 import javafx.scene.SubScene
+import main.scala.ppm.ImpureLayer.{OUTPUT_FILE, writeToFile}
 import main.scala.ppm.InitSubScene.{camVolume, worldRoot}
 import main.scala.ppm.PureLayer.{changeColor, getAllShapesFromRoot, greenRemove, mapColourEffect, octree, scaleOctree, sepia}
 
@@ -31,18 +32,22 @@ class Controller {
 
   def onScaleUpButtonClick() = {
     octree = scaleOctree(2, octree, worldRoot)
+    writeToFile(OUTPUT_FILE, octree)
   }
 
   def onScaleDownButtonClick() = {
     octree = scaleOctree(0.5, octree, worldRoot)
+    writeToFile(OUTPUT_FILE, octree)
   }
 
   def onSepiaButtonClick() = {
     octree = mapColourEffect(sepia, octree)
+    writeToFile(OUTPUT_FILE, octree)
   }
 
   def onRemoveGreenButtonClick() = {
     octree = mapColourEffect(greenRemove, octree)
+    writeToFile(OUTPUT_FILE, octree)
   }
 
   def onUpButtonClick() = {

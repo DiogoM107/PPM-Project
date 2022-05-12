@@ -187,47 +187,67 @@ object PureLayer {
   }
 
   //T1
-  def getShapesFromList(lst: List[String]): List[Shape3D] = {
-    lst match {
-      case Nil => Nil
-      case x :: tail => {
-        val elem = x.split(" ")
-        val rgb = elem(1).replace("(", "").replace(")", "").split(",")
-        val color = new PhongMaterial()
-        color.setDiffuseColor(Color.rgb(rgb(0).toInt, rgb(1).toInt, rgb(2).toInt))
-        val transXYZ = (elem(2).toDouble, elem(3).toDouble, elem(4).toDouble)
-        val scaleXYZ = (elem(5).toDouble, elem(6).toDouble, elem(7).toDouble)
-        elem(0).toLowerCase() match {
-          case "cylinder" => {
-            val cylinder = new Cylinder(0.5, 1, 10)
-            cylinder.setTranslateX(transXYZ._1)
-            cylinder.setTranslateY(transXYZ._2)
-            cylinder.setTranslateZ(transXYZ._3)
-            cylinder.setScaleX(scaleXYZ._1)
-            cylinder.setScaleY(scaleXYZ._2)
-            cylinder.setScaleZ(scaleXYZ._3)
-            cylinder.setMaterial(color)
-            cylinder.setDrawMode(DrawMode.FILL)
-            cylinder :: getShapesFromList(tail)
-          }
-          case "cube" => {
-            val box = new Box(1, 1, 1)
-            box.setTranslateX(transXYZ._1)
-            box.setTranslateY(transXYZ._2)
-            box.setTranslateZ(transXYZ._3)
-            box.setScaleX(scaleXYZ._1)
-            box.setScaleY(scaleXYZ._2)
-            box.setScaleZ(scaleXYZ._3)
-            box.setMaterial(color)
-            box.setDrawMode(DrawMode.FILL)
-            box :: getShapesFromList(tail)
+  def getShapesFromList(lst: List[String]): (List[Shape3D], Double) = {
 
-          }
-          case _ => {
-            getShapesFromList(tail)
+    def checkScale(line: String): (Double, Boolean) = {
+      val elem = line.split(" ")
+      elem(0).toLowerCase() match {
+        case "scale" => {
+          (elem(1).toDouble, true)
+        }
+        case _ => (1, false)
+      }
+    }
+
+    def createObjs(lst: List[String], objs: List[Shape3D]): List[Shape3D] = {
+      lst match {
+        case Nil => objs
+        case x :: tail => {
+          val elem = x.split(" ")
+          val rgb = elem(1).replace("(", "").replace(")", "").split(",")
+          val color = new PhongMaterial()
+          color.setDiffuseColor(Color.rgb(rgb(0).toInt, rgb(1).toInt, rgb(2).toInt))
+          val transXYZ = (elem(2).toDouble, elem(3).toDouble, elem(4).toDouble)
+          val scaleXYZ = (elem(5).toDouble, elem(6).toDouble, elem(7).toDouble)
+          elem(0).toLowerCase() match {
+            case "cylinder" => {
+              val cylinder = new Cylinder(0.5, 1, 10)
+              cylinder.setTranslateX(transXYZ._1)
+              cylinder.setTranslateY(transXYZ._2)
+              cylinder.setTranslateZ(transXYZ._3)
+              cylinder.setScaleX(scaleXYZ._1)
+              cylinder.setScaleY(scaleXYZ._2)
+              cylinder.setScaleZ(scaleXYZ._3)
+              cylinder.setMaterial(color)
+              cylinder.setDrawMode(DrawMode.FILL)
+              createObjs(tail, cylinder::objs)
+            }
+            case "cube" => {
+              val box = new Box(1, 1, 1)
+              box.setTranslateX(transXYZ._1)
+              box.setTranslateY(transXYZ._2)
+              box.setTranslateZ(transXYZ._3)
+              box.setScaleX(scaleXYZ._1)
+              box.setScaleY(scaleXYZ._2)
+              box.setScaleZ(scaleXYZ._3)
+              box.setMaterial(color)
+              box.setDrawMode(DrawMode.FILL)
+              createObjs(tail, box::objs)
+
+            }
+            case _ => {
+              createObjs(tail, objs)
+            }
           }
         }
       }
+    }
+    val scale = checkScale(lst(0))
+    if (scale._2) {
+      (createObjs(lst.tail, Nil), scale._1)
+    }
+    else {
+      (createObjs(lst, Nil), scale._1)
     }
 
   }
@@ -271,7 +291,7 @@ object PureLayer {
   }
 
   //T1
-  def createShapesFromFile(file: String): List[Shape3D] = {
+  def createShapesAndScaleFromFile(file: String): (List[Shape3D], Double) = {
     val lines = Source.fromFile(file).getLines().toList
     getShapesFromList(lines)
   }
