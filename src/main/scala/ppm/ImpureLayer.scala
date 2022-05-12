@@ -47,7 +47,7 @@ object ImpureLayer {
     println(s"Class: ${shape.getClass}, ${shape.getMaterial}, ${shape.getTranslateX}, ${shape.getTranslateY}, ${shape.getTranslateZ}, ${shape.getScaleX}, ${shape.getScaleY}, ${shape.getScaleZ}")
   }
 
-  def writeToFile(file: String, oct: Octree[Placement]) = {
+  def writeToFile(file: String, oct: Octree[Placement]): Unit = {
     val writer = new PrintWriter(new File(file))
     //Deve ir buscar apenas as shapes dentro da octree
     val scale = oct match {

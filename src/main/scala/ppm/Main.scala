@@ -25,13 +25,13 @@ class Main extends Application {
     val params = getParameters
     println("Program arguments:" + params.getRaw)
 
+    //octree = startTextUI()
+
+    runGUI(stage)
+
     stage.setTitle("PPM Project 21/22")
     stage.setScene(scene)
     stage.show
-
-    //runWithTextUI(stage)
-
-    runGUI(stage)
 
   }
 
@@ -43,38 +43,49 @@ class Main extends Application {
     println("stopped")
   }
 
-  //TODO - Enquanto esta funcao corre, o stage não é carregado..
-  def runWithTextUI(stage: Stage): Any = {
-
+  def startTextUI(): Octree[Placement] = {
     val fileName = getFileName()
     val shapesAndScale = createShapesAndScaleFromFile(fileName)
     shapesAndScale._1.map(x => worldRoot.getChildren.add(x))
     octree = createOcTree(MAX_SCALE * shapesAndScale._2, worldRoot, shapesAndScale._1)
+    octree = runWithTextUI()
+    octree
+  }
+
+  //TODO - Enquanto esta funcao corre, o stage não é carregado..
+  def runWithTextUI(): Octree[Placement] = {
+
     @tailrec
-    def runLoop (stage: Stage): Any = {
+    def runLoop (): Octree[Placement] = {
       val opt = getOption()
       opt match {
         case 1 => {
           octree = scaleOctree(2, octree, worldRoot)
+          writeToFile(OUTPUT_FILE, octree)
+          runLoop()
         }
         case 2 => {
           octree = scaleOctree(0.5, octree, worldRoot)
+          writeToFile(OUTPUT_FILE, octree)
+          runLoop()
         }
         case 3 => {
           octree = mapColourEffect(sepia, octree)
+          writeToFile(OUTPUT_FILE, octree)
+          runLoop()
         }
         case 4 => {
           octree = mapColourEffect(greenRemove, octree)
+          writeToFile(OUTPUT_FILE, octree)
+          runLoop()
         }
         case 5 => {
           writeToFile(OUTPUT_FILE, octree)
-          System.exit(0)
+          octree
         }
       }
-      writeToFile(OUTPUT_FILE, octree)
-      runLoop(stage)
     }
-    runLoop(stage)
+    runLoop()
   }
 
   def runGUI(stage: Stage) = {
