@@ -90,6 +90,7 @@ object PureLayer {
    * @return
    */
   def getContainedShapes(node: Node, root: Group, shapesList: List[Shape3D]): List[Shape3D] = {
+    // Vai percorrer todos as shapes da lista, para devolver todas as que estão contidas no node
     def checkIfNodeContainsAShapeFromList(node: Node, list: List[Shape3D], contained: List[Shape3D]): List[Shape3D] = {
       list match {
         case Nil => contained
@@ -107,31 +108,36 @@ object PureLayer {
     checkIfNodeContainsAShapeFromList(node, shapesList, Nil)
   }
 
+  /**
+   * Vai devolver todas as shapes que o node intersecta.
+   * @param node - O node
+   * @param root - o worldRoot
+   * @param shapesList - a lista dos objetos
+   * @return
+   */
   def getIntersectedShapes(node: Node, root: Group, shapesList: List[Shape3D]): List[Shape3D] = {
-    def checkIfNodeIntersectssAShapeFromList(node: Node, list: List[Shape3D], contained: List[Shape3D]): List[Shape3D] = {
+    def checkIfNodeIntersectsAShapeFromList(node: Node, list: List[Shape3D], contained: List[Shape3D]): List[Shape3D] = {
       list match {
         case Nil => contained
         case x :: xs => {
           if (node.getBoundsInParent.intersects(x.asInstanceOf[Shape3D].getBoundsInParent)) {
-            checkIfNodeIntersectssAShapeFromList(node, xs, x :: contained)
+            checkIfNodeIntersectsAShapeFromList(node, xs, x :: contained)
           }
           else {
-            checkIfNodeIntersectssAShapeFromList(node, xs, contained)
+            checkIfNodeIntersectsAShapeFromList(node, xs, contained)
           }
         }
       }
     }
 
-    checkIfNodeIntersectssAShapeFromList(node, shapesList, Nil)
+    checkIfNodeIntersectsAShapeFromList(node, shapesList, Nil)
   }
 
-  def getContainedAndIntersectedShapes(node: Node, root: Group, shapesList: List[Shape3D]): List[Shape3D] = {
-    val intersected: List[Shape3D] = getIntersectedShapes(node, root, shapesList)
-    val contained: List[Shape3D] = getContainedShapes(node, root, shapesList)
-    val both: List[Shape3D] = intersected.appendedAll(contained)
-    both
-  }
-
+  /**
+   * Funcao usada para criar uma particao
+   * @param placement - o placement
+   * @return - a particao
+   */
   // Cria um cubo com o placement enviado como parametro
   def createShapeCube(placement: Placement): Box = {
     val xyz = placement._1
@@ -140,6 +146,7 @@ object PureLayer {
     box.setTranslateX(size / 2 + xyz._1)
     box.setTranslateY(size / 2 + xyz._2)
     box.setTranslateZ(size / 2 + xyz._3)
+    // Aqui temos que ver se a particao está dentro do campo de visão do CamVolume, para definirmos a cor
     if (box.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.asInstanceOf[Shape3D].getBoundsInParent)) {
       box.setMaterial(blueMaterial)
     }
@@ -150,11 +157,21 @@ object PureLayer {
     box
   }
 
+  /**
+   * Funcao que vai verificar se um node está a intersectar alguma shape
+   * @param node - o node
+   * @param root - o worldRoot
+   * @param shapesList - a lista de shapes
+   * @return
+   */
   def intersectAShape(node: Node, root: Group, shapesList: List[Shape3D]): Boolean = {
     def checkIfNodeIntersectsShape(node: Node, list: List[Shape3D]): Boolean = {
       list match {
         case Nil => false
         case x :: xs => {
+          //Quando um node contem uma shape, o node vai intersectar a shape tambem.
+          //Por causa disso, não conseguimos perceber se está realmente a intersectar ou se está contido no node
+          //Para conseguir verificar se está só a intersectar, temos que usar este if
           if (node.getBoundsInParent.intersects(x.asInstanceOf[Shape3D].getBoundsInParent) && !node.getBoundsInParent.contains(x.asInstanceOf[Shape3D].getBoundsInParent)) {
             true
           }
@@ -168,6 +185,13 @@ object PureLayer {
     checkIfNodeIntersectsShape(node, shapesList)
   }
 
+  /**
+   * Verifica se um node contem uma shape
+   * @param node - o node
+   * @param root - o worldRoot
+   * @param shapesList - a lista de shapes
+   * @return
+   */
   def containsAShape(node: Node, root: Group, shapesList: List[Shape3D]): Boolean = {
     def checkIfNodeContainsShape(node: Node, list: List[Shape3D]): Boolean = {
       list match {
@@ -187,8 +211,16 @@ object PureLayer {
   }
 
   //T1
+
+  /**
+   * Vai converter a lista de String numa lista de Shapes
+   * @param lst - a lista de Strings
+   * @return - a lista de shapes
+   */
   def getShapesFromList(lst: List[String]): (List[Shape3D], Double) = {
 
+    //Se, ao corrermos a aplicacao, carregarmos o ficheiro output.txt em vez do config.txt, vai haver uma linha com a ultima scale da octree
+    //Esta funcao serve para ver se esse scale existe, e se existir, devolve esse scala e um true para informar que essa linha existia
     def checkScale(line: String): (Double, Boolean) = {
       val elem = line.split(" ")
       elem(0).toLowerCase() match {
@@ -199,6 +231,7 @@ object PureLayer {
       }
     }
 
+    //Vai converter a lista com as linhas do ficheiro com informação de shapes numa lista de shapes
     def createObjs(lst: List[String], objs: List[Shape3D]): List[Shape3D] = {
       lst match {
         case Nil => objs
@@ -242,7 +275,9 @@ object PureLayer {
         }
       }
     }
+    //usado para verificar se existia informação do scale no ficheiro
     val scale = checkScale(lst(0))
+    //se existir, é porque carregamos o ficheiro output.txt, e nesse caso vamos converter as restantes linhas em shapes e ignorar a primeira
     if (scale._2) {
       (createObjs(lst.tail, Nil), scale._1)
     }
@@ -252,6 +287,11 @@ object PureLayer {
 
   }
 
+  /**
+   * Funcao devolve todas as shapes que existem no worldRoot, ignorando o camVolume
+   * @param root - worldRoot
+   * @return - a lista de shapes
+   */
   def getAllShapesFromRoot(root: Group): List[Shape3D] = {
     def aux(children: List[Node], shapes: List[Shape3D]): List[Shape3D] = {
       children match {
@@ -271,8 +311,14 @@ object PureLayer {
     aux(list, Nil)
   }
 
-  //TODO - deve enviar uma lista com os objetos novos e não alterar diretamente
   //T3
+  //TODO - Esta função deveria receber a octree e devolver a octree com as shapes alteradas
+  /**
+   * Funcao vai percorrer todas as shapes enviadas na lista e verificar se estão a intersectar o camVolume
+   * Se não estiverem, devem ficar em branco
+   * @param shapes - a lista das shapes
+   * @return - a lista das shapes com as cores alteradas
+   */
   def changeColor(shapes: List[Shape3D]): List[Shape3D] = {
     shapes match {
       case Nil => Nil
@@ -291,43 +337,26 @@ object PureLayer {
   }
 
   //T1
+
+  /**
+   * Funcao que vai criar as shapes e definir o scale inicial
+   * @param file - O nome/caminho do ficheiro
+   * @return - a lista das shapes carregadas e o scale inicial
+   */
   def createShapesAndScaleFromFile(file: String): (List[Shape3D], Double) = {
     val lines = Source.fromFile(file).getLines().toList
     getShapesFromList(lines)
   }
 
-  //TODO - verificar como fazer
-  def getOcTreeShapes(oct: Octree[Placement]): List[Node] = {
-    def getListOfObjects(oct2: Octree[Placement]): List[Object] = {
-      oct2 match {
-        case OcEmpty => Nil
-        case OcLeaf(section) => {
-          section.asInstanceOf[Section]._2
-        }
-        case OcNode(coords, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11) => {
-          getListOfObjects(up_00) :: getListOfObjects(up_01) :: getListOfObjects(up_10) :: getListOfObjects(up_11) :: getListOfObjects(down_00) :: getListOfObjects(down_01) :: getListOfObjects(down_10) :: getListOfObjects(down_11)
-        }
-      }
-    }
-
-    def filterListOfObjects(objs: List[Object], shapes: List[Shape3D]): List[Shape3D] = {
-      objs match {
-        case Nil => shapes
-        case x :: tail => {
-          if (x.isInstanceOf[Node]) {
-            filterListOfObjects(tail, x.asInstanceOf[Shape3D] :: shapes)
-          }
-          else {
-            filterListOfObjects(tail, shapes)
-          }
-        }
-      }
-    }
-
-    filterListOfObjects(getListOfObjects(oct), Nil)
-  }
-
   //T4 - deve devolver a ocTree
+
+  /**
+   * Funcao vai receber uma octree e um factor de scale, e devolve uma nova octree com esse valor de scale
+   * @param fact - o factor de scale
+   * @param oct - a octree
+   * @param root - o worldRoot
+   * @return - a octree escalada
+   */
   def scaleOctree(fact: Double, oct: Octree[Placement], root: Group): Octree[Placement] = {
     //TODO - deve devolver a lista de objetos nova e nao alterar diretamente
     def scaleShapes(shapes: List[Shape3D]): Any = {
@@ -361,14 +390,12 @@ object PureLayer {
       }
     }
 
-    //TODO - devia estar a ir buscar os objetos da ocTree e não do root
     scaleShapes(getAllShapesFromRoot(root))
     var oct2 = scaleOctNodes(oct)
     changeColor(getAllShapesFromRoot(root))
     oct2
   }
 
-  //TODO - deve devolver uma nova octree sem alterar a antiga
   //T5
   def mapColourEffect(func: Color => Color, oct: Octree[Placement]): Octree[Placement] = {
     oct match {

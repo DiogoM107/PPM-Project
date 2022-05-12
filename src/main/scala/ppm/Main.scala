@@ -1,8 +1,6 @@
 package main.scala.ppm
 
 import javafx.application.Application
-import javafx.scene.input.KeyCode
-import javafx.scene.shape.Shape3D
 import javafx.stage.{FileChooser, Stage}
 import main.scala.ppm.ImpureLayer._
 import main.scala.ppm.InitSubScene._

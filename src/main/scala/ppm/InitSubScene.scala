@@ -97,7 +97,7 @@ object InitSubScene{
   cylinder1.setScaleZ(2)
   cylinder1.setMaterial(greenMaterial)
 
-  val box1 = new Box(1, 1, 1) //
+  val box1 = new Box(1, 1, 1)
   box1.setTranslateX(5)
   box1.setTranslateY(5)
   box1.setTranslateZ(5)
