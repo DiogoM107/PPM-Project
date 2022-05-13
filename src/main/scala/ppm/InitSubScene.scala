@@ -81,6 +81,7 @@ object InitSubScene{
   val controllerScene: Parent = fxmlLoader.load()
 
   val root = new StackPane(subScene,controllerScene,cameraView)
+
   val wiredBox = new Box(32, 32, 32)
   wiredBox.setTranslateX(16)
   wiredBox.setTranslateY(16)

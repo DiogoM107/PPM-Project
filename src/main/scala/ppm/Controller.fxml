@@ -2,26 +2,52 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.scala.ppm.Controller">
    <children>
-      <GridPane fx:id="gridPane" layoutX="7.0" layoutY="308.0">
+      <GridPane fx:id="gridPane" hgap="20.0" layoutY="317.0" vgap="20.0" AnchorPane.topAnchor="317.0">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.0" minWidth="10.0" prefWidth="140.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.0" minWidth="10.0" prefWidth="140.0" />
         </columnConstraints>
         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="removeGreenButton" mnemonicParsing="false" onMouseClicked="#onRemoveGreenButtonClick" text="Remove Green" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Button fx:id="scaleDownButton" mnemonicParsing="false" onMouseClicked="#onScaleDownButtonClick" text="Scale Down" GridPane.columnIndex="1" />
-            <Button fx:id="scaleUpButton" mnemonicParsing="false" onMouseClicked="#onScaleUpButtonClick" text="Scale Up" />
-            <Button fx:id="sepiaButton" mnemonicParsing="false" onMouseClicked="#onSepiaButtonClick" text="Sepia" GridPane.rowIndex="1" />
-            <Button fx:id="upButton" mnemonicParsing="false" onMouseClicked="#onUpButtonClick" text="Up" GridPane.rowIndex="2" />
-            <Button fx:id="downButton" mnemonicParsing="false" onMouseClicked="#onDownButtonClick" text="Down" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Button fx:id="removeGreenButton" blendMode="DARKEN" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#onRemoveGreenButtonClick" text="Remove Green" GridPane.columnIndex="1" GridPane.rowIndex="3">
+               <font>
+                  <Font name="Droid Sans Mono" size="14.0" />
+               </font></Button>
+            <Button fx:id="scaleDownButton" blendMode="DARKEN" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#onScaleDownButtonClick" text="Scale Down (0.5x)" GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <font>
+                  <Font name="Droid Sans Mono" size="14.0" />
+               </font></Button>
+            <Button fx:id="scaleUpButton" blendMode="DARKEN" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#onScaleUpButtonClick" text="Scale Up (2x)" GridPane.rowIndex="2">
+               <font>
+                  <Font name="Droid Sans Mono" size="14.0" />
+               </font></Button>
+            <Button fx:id="sepiaButton" blendMode="DARKEN" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#onSepiaButtonClick" text="Sepia" GridPane.rowIndex="3">
+               <font>
+                  <Font name="Droid Sans Mono" size="14.0" />
+               </font></Button>
+            <Button fx:id="upButton" alignment="CENTER" blendMode="DARKEN" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#onUpButtonClick" text="Move Up" GridPane.rowIndex="4">
+               <font>
+                  <Font name="Droid Sans Mono" size="14.0" />
+               </font></Button>
+            <Button fx:id="downButton" blendMode="DARKEN" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#onDownButtonClick" text="Move Down" GridPane.columnIndex="1" GridPane.rowIndex="4">
+               <font>
+                  <Font name="Droid Sans Mono" size="14.0" />
+               </font></Button>
+            <Label text="Actions:" textFill="#ccc0c0">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font></Label>
          </children>
       </GridPane>
       <Pane fx:id="submitPane" layoutX="7.0" prefHeight="200.0" prefWidth="200.0" visible="false">

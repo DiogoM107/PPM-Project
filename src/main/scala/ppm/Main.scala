@@ -25,8 +25,8 @@ class Main extends Application {
     println("Program arguments:" + params.getRaw)
 
     //Escolher qual a interface que deve correr:
-    octree = startTextUI(octree, worldRoot)
-    //octree = startGUI(stage, worldRoot)
+    //octree = startTextUI(worldRoot)
+    octree = startGUI(stage, worldRoot)
     if (octree == OcEmpty) {
       println("Programa terminado.")
       System.exit(0)
@@ -34,7 +34,7 @@ class Main extends Application {
 
     stage.setTitle("PPM Project 21/22")
     stage.setScene(scene)
-    stage.show
+    stage.show()
 
   }
 
@@ -46,7 +46,7 @@ class Main extends Application {
     println("stopped")
   }
 
-  def startTextUI(octree: Octree[Placement], root: Group): Octree[Placement] = {
+  def startTextUI(root: Group): Octree[Placement] = {
     val fileName = getFileName()
     val depth = getDepth()
     val shapesAndScale = createShapesAndScaleFromFile(fileName)
@@ -106,7 +106,7 @@ class Main extends Application {
 
     val fileChooser: FileChooser = new FileChooser()
     fileChooser.setTitle("Ficheiro de configuração.")
-    val currentDir = Paths.get(".").toAbsolutePath().normalize().toString();
+    val currentDir = Paths.get(".").toAbsolutePath().normalize().toString()
     fileChooser.setInitialDirectory(new File(currentDir))
     val extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt")
     fileChooser.getExtensionFilters.add(extFilter)
