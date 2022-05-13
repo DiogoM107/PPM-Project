@@ -5,7 +5,7 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.scala.ppm.Controller">
    <children>
-      <GridPane layoutX="7.0" layoutY="308.0">
+      <GridPane fx:id="gridPane" layoutX="7.0" layoutY="308.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -24,5 +24,13 @@
             <Button fx:id="downButton" mnemonicParsing="false" onMouseClicked="#onDownButtonClick" text="Down" GridPane.columnIndex="1" GridPane.rowIndex="2" />
          </children>
       </GridPane>
+      <Pane fx:id="submitPane" layoutX="7.0" prefHeight="200.0" prefWidth="200.0" visible="false">
+         <children>
+            <Button fx:id="submitButton" layoutX="14.0" layoutY="129.0" mnemonicParsing="false" onMouseClicked="#onSubmitButtonClick" text="Submit" />
+            <Label fx:id="label1" layoutX="14.0" layoutY="43.0" text="Insira a depth da Octree:" />
+            <TextField fx:id="text1" layoutX="14.0" layoutY="75.0" />
+            <Label fx:id="labelInvalid" layoutX="14.0" layoutY="169.0" text="Depth inválida" textFill="#df0c0c" visible="false" />
+         </children>
+      </Pane>
    </children>
 </AnchorPane>

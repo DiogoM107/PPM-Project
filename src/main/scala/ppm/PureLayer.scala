@@ -28,24 +28,26 @@ object PureLayer {
 
   /**
    * Aqui vamos começar a criar a octree
-   * @param scale - o tamanho do maior nó da octree. Segundo o enunciado, deve ter um tamanho de 32
-   * @param root - o worldRoot, precisamos como argumento para poder inserir as partições (Nodes) criados no mapa
+   *
+   * @param scale      - o tamanho do maior nó da octree. Segundo o enunciado, deve ter um tamanho de 32
+   * @param root       - o worldRoot, precisamos como argumento para poder inserir as partições (Nodes) criados no mapa
    * @param shapesList - Lista com as shapes que carregamos pelo ficheiro. Precisamos para saber que partições é que temos que desenhar
    * @return
    */
-  def createOcTree(scale: Double, root: Group, shapesList: List[Shape3D]): Octree[Placement] = {
+  def createOcTree(scale: Double, root: Group, shapesList: List[Shape3D], depth: Int): Octree[Placement] = {
     val placement: Placement = ((0, 0, 0), scale)
-    createOcNode(placement, root, shapesList)
+    createOcNode(placement, root, shapesList, depth)
   }
 
   /**
    * Aqui criamos, recursivamente, todos as partições da OcTree.
-   * @param placement - O placement da partição superior
-   * @param root - O worldRoot, necessário para desenhar as partições
+   *
+   * @param placement  - O placement da partição superior
+   * @param root       - O worldRoot, necessário para desenhar as partições
    * @param shapesList - A lista de shapes que carregamos no ficheiro
    * @return
    */
-  def createOcNode(placement: Placement, root: Group, shapesList: List[Shape3D]): Octree[Placement] = {
+  def createOcNode(placement: Placement, root: Group, shapesList: List[Shape3D], depth: Int): Octree[Placement] = {
     val xyz = placement._1
     val size = placement._2 / 2
     //Primeiro passo é criar a partição
@@ -54,16 +56,16 @@ object PureLayer {
       //Se a particao que criamos tiver alguma shape 100% dentro dela, então vamos desenhá-la
       root.getChildren.add(nodeBox)
       //O tamanho minimo duma partição foi definido como 2, portanto será aí que vai parar a recursividade
-      if (placement._2 > MIN_SCALE) {
+      if (placement._2 > MIN_SCALE && depth > 0) {
         OcNode(placement,
-          createOcNode(((xyz._1, xyz._2 + size, xyz._3), (size)), root, shapesList),
-          createOcNode(((xyz._1 + size, xyz._2 + size, xyz._3), (size)), root, shapesList),
-          createOcNode(((xyz._1, xyz._2 + size, xyz._3 + size), (size)), root, shapesList),
-          createOcNode(((xyz._1 + size, xyz._2 + size, xyz._3 + size), (size)), root, shapesList),
-          createOcNode((xyz, (size)), root, shapesList),
-          createOcNode(((xyz._1 + size, xyz._2, xyz._3), (size)), root, shapesList),
-          createOcNode(((xyz._1, xyz._2, xyz._3 + size), (size)), root, shapesList),
-          createOcNode(((xyz._1 + size, xyz._2, xyz._3 + size), (size)), root, shapesList)
+          createOcNode(((xyz._1, xyz._2 + size, xyz._3), (size)), root, shapesList, depth - 1),
+          createOcNode(((xyz._1 + size, xyz._2 + size, xyz._3), (size)), root, shapesList, depth - 1),
+          createOcNode(((xyz._1, xyz._2 + size, xyz._3 + size), (size)), root, shapesList, depth - 1),
+          createOcNode(((xyz._1 + size, xyz._2 + size, xyz._3 + size), (size)), root, shapesList, depth - 1),
+          createOcNode((xyz, (size)), root, shapesList, depth - 1),
+          createOcNode(((xyz._1 + size, xyz._2, xyz._3), (size)), root, shapesList, depth - 1),
+          createOcNode(((xyz._1, xyz._2, xyz._3 + size), (size)), root, shapesList, depth - 1),
+          createOcNode(((xyz._1 + size, xyz._2, xyz._3 + size), (size)), root, shapesList, depth - 1)
         )
       }
       else {
@@ -78,14 +80,15 @@ object PureLayer {
       val newSection: Section = (placement, getIntersectedShapes(nodeBox, root, shapesList))
       OcLeaf(newSection)
     }
-      //Se a partição não tiver nenhum objeto contido nela nem está a intersectar nada, então não vale a pena desenvolvê-la.
+    //Se a partição não tiver nenhum objeto contido nela nem está a intersectar nada, então não vale a pena desenvolvê-la.
     else OcEmpty
   }
 
   /**
    * Função vai devolver todos os objetos que estão contidos num determinado node
-   * @param node - O node que vamos ver se tem objetos contidos
-   * @param root - O worldRoot
+   *
+   * @param node       - O node que vamos ver se tem objetos contidos
+   * @param root       - O worldRoot
    * @param shapesList - A lista dos objetos adicionados no ficheiro
    * @return
    */
@@ -110,8 +113,9 @@ object PureLayer {
 
   /**
    * Vai devolver todas as shapes que o node intersecta.
-   * @param node - O node
-   * @param root - o worldRoot
+   *
+   * @param node       - O node
+   * @param root       - o worldRoot
    * @param shapesList - a lista dos objetos
    * @return
    */
@@ -135,6 +139,7 @@ object PureLayer {
 
   /**
    * Funcao usada para criar uma particao
+   *
    * @param placement - o placement
    * @return - a particao
    */
@@ -159,8 +164,9 @@ object PureLayer {
 
   /**
    * Funcao que vai verificar se um node está a intersectar alguma shape
-   * @param node - o node
-   * @param root - o worldRoot
+   *
+   * @param node       - o node
+   * @param root       - o worldRoot
    * @param shapesList - a lista de shapes
    * @return
    */
@@ -187,8 +193,9 @@ object PureLayer {
 
   /**
    * Verifica se um node contem uma shape
-   * @param node - o node
-   * @param root - o worldRoot
+   *
+   * @param node       - o node
+   * @param root       - o worldRoot
    * @param shapesList - a lista de shapes
    * @return
    */
@@ -214,6 +221,7 @@ object PureLayer {
 
   /**
    * Vai converter a lista de String numa lista de Shapes
+   *
    * @param lst - a lista de Strings
    * @return - a lista de shapes
    */
@@ -253,7 +261,7 @@ object PureLayer {
               cylinder.setScaleZ(scaleXYZ._3)
               cylinder.setMaterial(color)
               cylinder.setDrawMode(DrawMode.FILL)
-              createObjs(tail, cylinder::objs)
+              createObjs(tail, cylinder :: objs)
             }
             case "cube" => {
               val box = new Box(1, 1, 1)
@@ -265,7 +273,7 @@ object PureLayer {
               box.setScaleZ(scaleXYZ._3)
               box.setMaterial(color)
               box.setDrawMode(DrawMode.FILL)
-              createObjs(tail, box::objs)
+              createObjs(tail, box :: objs)
 
             }
             case _ => {
@@ -275,6 +283,7 @@ object PureLayer {
         }
       }
     }
+
     //usado para verificar se existia informação do scale no ficheiro
     val scale = checkScale(lst(0))
     //se existir, é porque carregamos o ficheiro output.txt, e nesse caso vamos converter as restantes linhas em shapes e ignorar a primeira
@@ -289,6 +298,7 @@ object PureLayer {
 
   /**
    * Funcao devolve todas as shapes que existem no worldRoot, ignorando o camVolume
+   *
    * @param root - worldRoot
    * @return - a lista de shapes
    */
@@ -312,10 +322,12 @@ object PureLayer {
   }
 
   //T3
-  //TODO - Esta função deveria receber a octree e devolver a octree com as shapes alteradas
+  //TODO - Esta função vai alterar diretamente as shapes do worldRoot
+
   /**
    * Funcao vai percorrer todas as shapes enviadas na lista e verificar se estão a intersectar o camVolume
    * Se não estiverem, devem ficar em branco
+   *
    * @param shapes - a lista das shapes
    * @return - a lista das shapes com as cores alteradas
    */
@@ -331,7 +343,7 @@ object PureLayer {
             x.asInstanceOf[Shape3D].setMaterial(blueMaterial)
           }
         }
-        x::changeColor(xs)
+        x :: changeColor(xs)
       }
     }
   }
@@ -340,6 +352,7 @@ object PureLayer {
 
   /**
    * Funcao que vai criar as shapes e definir o scale inicial
+   *
    * @param file - O nome/caminho do ficheiro
    * @return - a lista das shapes carregadas e o scale inicial
    */
@@ -352,13 +365,14 @@ object PureLayer {
 
   /**
    * Funcao vai receber uma octree e um factor de scale, e devolve uma nova octree com esse valor de scale
+   *
    * @param fact - o factor de scale
-   * @param oct - a octree
+   * @param oct  - a octree
    * @param root - o worldRoot
    * @return - a octree escalada
    */
   def scaleOctree(fact: Double, oct: Octree[Placement], root: Group): Octree[Placement] = {
-    //TODO - deve devolver a lista de objetos nova e nao alterar diretamente
+    //TODO - deve devolver a lista de objetos nova e nao alterar diretamente, para isso teriamos que retirar os objetos do worldRoot e voltar a colocar
     def scaleShapes(shapes: List[Shape3D]): Any = {
       shapes match {
         case Nil => Nil
@@ -380,7 +394,6 @@ object PureLayer {
         case OcLeaf(section) => {
           val sec = section.asInstanceOf[Section]
           val newSection: Section = (((sec._1._1._1 * fact, sec._1._1._2 * fact, sec._1._1._3 * fact), sec._1._2 * fact), sec._2)
-          //scaleShapes(section.asInstanceOf[Section]._2.asInstanceOf[List[Shape3D]])
           OcLeaf(newSection)
         }
         case OcNode(coords, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11) => {

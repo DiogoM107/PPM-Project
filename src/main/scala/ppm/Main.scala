@@ -1,6 +1,7 @@
 package main.scala.ppm
 
 import javafx.application.Application
+import javafx.scene.Group
 import javafx.stage.{FileChooser, Stage}
 import main.scala.ppm.ImpureLayer._
 import main.scala.ppm.InitSubScene._
@@ -23,9 +24,13 @@ class Main extends Application {
     val params = getParameters
     println("Program arguments:" + params.getRaw)
 
-    //octree = startTextUI()
-
-    runGUI(stage)
+    //Escolher qual a interface que deve correr:
+    octree = startTextUI(octree, worldRoot)
+    //octree = startGUI(stage, worldRoot)
+    if (octree == OcEmpty) {
+      println("Programa terminado.")
+      System.exit(0)
+    }
 
     stage.setTitle("PPM Project 21/22")
     stage.setScene(scene)
@@ -41,52 +46,63 @@ class Main extends Application {
     println("stopped")
   }
 
-  def startTextUI(): Octree[Placement] = {
+  def startTextUI(octree: Octree[Placement], root: Group): Octree[Placement] = {
     val fileName = getFileName()
+    val depth = getDepth()
     val shapesAndScale = createShapesAndScaleFromFile(fileName)
-    shapesAndScale._1.map(x => worldRoot.getChildren.add(x))
-    octree = createOcTree(MAX_SCALE * shapesAndScale._2, worldRoot, shapesAndScale._1)
-    octree = runWithTextUI()
-    octree
+    shapesAndScale._1.map(x => root.getChildren.add(x))
+    var oct = createOcTree(MAX_SCALE * shapesAndScale._2, root, shapesAndScale._1, depth)
+    oct = runWithTextUI(oct, root)
+    oct
   }
 
-  //TODO - Enquanto esta funcao corre, o stage não é carregado..
-  def runWithTextUI(): Octree[Placement] = {
+  def runWithTextUI(octree: Octree[Placement], root: Group): Octree[Placement] = {
+
+    var oct: Octree[Placement] = octree
 
     @tailrec
-    def runLoop (): Octree[Placement] = {
+    def runLoop(): Octree[Placement] = {
       val opt = getOption()
       opt match {
         case 1 => {
-          octree = scaleOctree(2, octree, worldRoot)
-          writeToFile(OUTPUT_FILE, octree)
+          oct = scaleOctree(2, oct, root)
+          writeToFile(OUTPUT_FILE, oct, root)
           runLoop()
         }
         case 2 => {
-          octree = scaleOctree(0.5, octree, worldRoot)
-          writeToFile(OUTPUT_FILE, octree)
+          oct = scaleOctree(0.5, oct, root)
+          writeToFile(OUTPUT_FILE, oct, root)
           runLoop()
         }
         case 3 => {
-          octree = mapColourEffect(sepia, octree)
-          writeToFile(OUTPUT_FILE, octree)
+          oct = mapColourEffect(sepia, oct)
+          writeToFile(OUTPUT_FILE, oct, root)
           runLoop()
         }
         case 4 => {
-          octree = mapColourEffect(greenRemove, octree)
-          writeToFile(OUTPUT_FILE, octree)
+          oct = mapColourEffect(greenRemove, oct)
+          writeToFile(OUTPUT_FILE, oct, root)
           runLoop()
         }
         case 5 => {
-          writeToFile(OUTPUT_FILE, octree)
-          octree
+          writeToFile(OUTPUT_FILE, oct, root)
+          oct
         }
       }
     }
+
     runLoop()
   }
 
-  def runGUI(stage: Stage) = {
+  def startGUI(stage: Stage, root: Group): Octree[Placement] = {
+
+    //TODO - tem que pedir input ao user
+    val depth = 3
+
+    runGUI(stage, depth, root)
+  }
+
+  def runGUI(stage: Stage, depth: Int, root: Group): Octree[Placement] = {
 
     val fileChooser: FileChooser = new FileChooser()
     fileChooser.setTitle("Ficheiro de configuração.")
@@ -99,12 +115,12 @@ class Main extends Application {
 
     if (file != null) {
       val shapesAndScale = createShapesAndScaleFromFile(file.getName)
-      shapesAndScale._1.map(x => worldRoot.getChildren.add(x))
-      octree = createOcTree(MAX_SCALE * shapesAndScale._2, worldRoot, shapesAndScale._1)
+      shapesAndScale._1.map(x => root.getChildren.add(x))
+      createOcTree(MAX_SCALE * shapesAndScale._2, root, shapesAndScale._1, depth)
+
     }
     else {
-      println("Programa terminado!")
-      System.exit(0)
+      OcEmpty
     }
   }
 
