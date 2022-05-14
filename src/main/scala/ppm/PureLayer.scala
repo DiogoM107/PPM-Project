@@ -205,13 +205,13 @@ object PureLayer {
     }
 
     //usado para verificar se existia informação do scale no ficheiro
-    val scale = checkScale(lst(0))
+    val (scale, existsScale) = checkScale(lst(0))
     //se existir, é porque carregamos o ficheiro output.txt, e nesse caso vamos converter as restantes linhas em shapes e ignorar a primeira
-    if (scale._2) {
-      (createObjs(lst.tail, Nil), scale._1)
+    if (existsScale) {
+      (createObjs(lst.tail, Nil), scale)
     }
     else {
-      (createObjs(lst, Nil), scale._1)
+      (createObjs(lst, Nil), scale)
     }
 
   }
@@ -241,9 +241,6 @@ object PureLayer {
     aux(list, Nil)
   }
 
-  //T3
-  //TODO - Esta função vai alterar diretamente as shapes do worldRoot
-
   /**
    * Funcao vai percorrer todas as shapes enviadas na lista e verificar se estão a intersectar o camVolume
    * Se não estiverem, devem ficar em branco
@@ -251,6 +248,8 @@ object PureLayer {
    * @param shapes - a lista das shapes
    * @return - a lista das shapes com as cores alteradas
    */
+  //T3
+  //TODO - Esta função vai alterar diretamente as shapes do worldRoot
   def changeColor(shapes: List[Shape3D]): List[Shape3D] = {
     shapes match {
       case Nil => Nil
@@ -268,27 +267,7 @@ object PureLayer {
     }
   }
 
-  //Como deveria ficar
-  /**
-   * def changeColor(shapes: List[Bounds], camBound: Bounds): List[Colors] = {
-    shapes match {
-      case Nil => Nil
-
-      case x :: xs =>
-          val newColor = if (!x.intersects(camBound)) {
-            Colors.White
-          } else {
-            Colors.Blue
-          }
-
-        newColor :: changeColor(xs, camBound)
-    }
-  }
-*/
-
-
   //T1
-
   /**
    * Funcao que vai criar as shapes e definir o scale inicial
    *
