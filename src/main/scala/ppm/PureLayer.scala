@@ -87,12 +87,12 @@ object PureLayer {
     else OcEmpty
   }
 
-  def getShapesWithCondition(node: Node, shapesList: List[Shape3D], f: (Bounds, Bounds) => Boolean): List[Shape3D] = {
+  def getShapesWithCondition(node: Node, shapesList: List[Shape3D], func: (Bounds, Bounds) => Boolean): List[Shape3D] = {
     def checkCondition(node: Node, list: List[Shape3D], contained: List[Shape3D]): List[Shape3D] = {
       list match {
         case Nil => contained
         case x :: xs => {
-          if (f(node.getBoundsInParent, x.asInstanceOf[Shape3D].getBoundsInParent)) {
+          if (func(node.getBoundsInParent, x.getBoundsInParent)) {
             checkCondition(node, xs, x :: contained)
           }
           else {
@@ -105,12 +105,12 @@ object PureLayer {
     checkCondition(node, shapesList, Nil)
   }
 
-  def checkConditionWithBounds(node: Node, shapesList: List[Shape3D], f: (Bounds, Bounds) => Boolean): Boolean = {
+  def checkConditionWithBounds(node: Node, shapesList: List[Shape3D], func: (Bounds, Bounds) => Boolean): Boolean = {
     def checkCondition(node: Node, list: List[Shape3D]): Boolean = {
       list match {
         case Nil => false
         case x :: xs => {
-          if (f(node.getBoundsInParent, x.asInstanceOf[Shape3D].getBoundsInParent)) {
+          if (func(node.getBoundsInParent, x.getBoundsInParent)) {
             true
           }
           else {
