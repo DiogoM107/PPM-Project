@@ -3,11 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="Algumas melhorias">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PPM-Project/main/scala/ppm/Controller.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PPM-Project/main/scala/ppm/Controller.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/output.txt" beforeDir="false" afterPath="$PROJECT_DIR$/output.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Controller.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Controller.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/InitSubScene.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/InitSubScene.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Controller.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Controller.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/ImpureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/ImpureLayer.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -225,8 +225,26 @@
       <option name="project" value="LOCAL" />
       <updated>1652452574138</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Algumas melhorias">
+      <created>1652461736303</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1652461736303</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+        <option value="Space.CommitStatus" />
+      </list>
+    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -268,5 +286,21 @@
     <MESSAGE value="Pequenas alterações" />
     <MESSAGE value="Algumas melhorias" />
     <option name="LAST_COMMIT_MESSAGE" value="Algumas melhorias" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="scala-line">
+          <url>file://$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala</url>
+          <line>52</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="scala-line">
+          <url>file://$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala</url>
+          <line>137</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

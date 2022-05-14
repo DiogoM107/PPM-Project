@@ -1,9 +1,11 @@
 package main.scala.ppm
 
+import javafx.geometry.Bounds
 import javafx.scene.{Group, Node}
 import javafx.scene.paint.{Color, PhongMaterial}
 import javafx.scene.shape.{Box, Cylinder, DrawMode, Shape3D}
-import main.scala.ppm.InitSubScene.{blueMaterial, camVolume, whiteMaterial}
+import main.scala.ppm.ImpureLayer.createShapeCube
+import main.scala.ppm.InitSubScene.{blueMaterial, camVolume, whiteMaterial, worldRoot}
 
 import scala.io.Source
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -48,176 +50,93 @@ object PureLayer {
    * @return
    */
   def createOcNode(placement: Placement, root: Group, shapesList: List[Shape3D], depth: Int): Octree[Placement] = {
-    val xyz = placement._1
-    val size = placement._2 / 2
+    val ((x, y, z), size) = placement
+    val newSize = size / 2
+
     //Primeiro passo é criar a partição
     val nodeBox = createShapeCube(placement)
-    if (containsAShape(nodeBox, root, shapesList) && !intersectAShape(nodeBox, root, shapesList)) {
+    if (checkConditionWithBounds(nodeBox, shapesList, containsAShapeFunc)) {
       //Se a particao que criamos tiver alguma shape 100% dentro dela, então vamos desenhá-la
       root.getChildren.add(nodeBox)
       //O tamanho minimo duma partição foi definido como 2, portanto será aí que vai parar a recursividade
-      if (placement._2 > MIN_SCALE && depth > 0) {
+      if (size > MIN_SCALE && depth > 0) {
         OcNode(placement,
-          createOcNode(((xyz._1, xyz._2 + size, xyz._3), (size)), root, shapesList, depth - 1),
-          createOcNode(((xyz._1 + size, xyz._2 + size, xyz._3), (size)), root, shapesList, depth - 1),
-          createOcNode(((xyz._1, xyz._2 + size, xyz._3 + size), (size)), root, shapesList, depth - 1),
-          createOcNode(((xyz._1 + size, xyz._2 + size, xyz._3 + size), (size)), root, shapesList, depth - 1),
-          createOcNode((xyz, (size)), root, shapesList, depth - 1),
-          createOcNode(((xyz._1 + size, xyz._2, xyz._3), (size)), root, shapesList, depth - 1),
-          createOcNode(((xyz._1, xyz._2, xyz._3 + size), (size)), root, shapesList, depth - 1),
-          createOcNode(((xyz._1 + size, xyz._2, xyz._3 + size), (size)), root, shapesList, depth - 1)
+          createOcNode(((x, y + newSize, z), newSize), root, shapesList, depth - 1),
+          createOcNode(((x + newSize, y + newSize, z), newSize), root, shapesList, depth - 1),
+          createOcNode(((x, y + newSize, z + newSize), newSize), root, shapesList, depth - 1),
+          createOcNode(((x + newSize, y + newSize, z + newSize), newSize), root, shapesList, depth - 1),
+          createOcNode(((x, y, z), newSize), root, shapesList, depth - 1),
+          createOcNode(((x + newSize, y, z), newSize), root, shapesList, depth - 1),
+          createOcNode(((x, y, z + newSize), newSize), root, shapesList, depth - 1),
+          createOcNode(((x + newSize, y, z + newSize), newSize), root, shapesList, depth - 1)
         )
       }
       else {
         //Se estivermos no tamanho minimo, então vamos criar uma OcLeaf, que é uma partição que tem uma lista com todos os objetos contidos nela
-        val newSection: Section = (placement, getContainedShapes(nodeBox, root, shapesList))
+        val newSection: Section = (placement, getShapesWithCondition(nodeBox, shapesList, containsAShapeFunc))
         OcLeaf(newSection)
       }
     }
     //Pode acontecer uma partição ter um objeto que não está 100% contido nela. Nesse caso, vamos tornar o OcNode pai numa ocleaf,
     // para ser possível ter uma ocleaf com o objeto 100% dentro dele
-    else if (intersectAShape(nodeBox, root, shapesList)) {
-      val newSection: Section = (placement, getIntersectedShapes(nodeBox, root, shapesList))
+    else if (checkConditionWithBounds(nodeBox, shapesList, intersectsAShapeWithoutContainingFunc)) {
+      val newSection: Section = (placement, getShapesWithCondition(nodeBox, shapesList, intersectsAShapeFunc))
       OcLeaf(newSection)
     }
     //Se a partição não tiver nenhum objeto contido nela nem está a intersectar nada, então não vale a pena desenvolvê-la.
     else OcEmpty
   }
 
-  /**
-   * Função vai devolver todos os objetos que estão contidos num determinado node
-   *
-   * @param node       - O node que vamos ver se tem objetos contidos
-   * @param root       - O worldRoot
-   * @param shapesList - A lista dos objetos adicionados no ficheiro
-   * @return
-   */
-  def getContainedShapes(node: Node, root: Group, shapesList: List[Shape3D]): List[Shape3D] = {
-    // Vai percorrer todos as shapes da lista, para devolver todas as que estão contidas no node
-    def checkIfNodeContainsAShapeFromList(node: Node, list: List[Shape3D], contained: List[Shape3D]): List[Shape3D] = {
+  def getShapesWithCondition(node: Node, shapesList: List[Shape3D], f: (Bounds, Bounds) => Boolean): List[Shape3D] = {
+    def checkCondition(node: Node, list: List[Shape3D], contained: List[Shape3D]): List[Shape3D] = {
       list match {
         case Nil => contained
         case x :: xs => {
-          if (node.getBoundsInParent.contains(x.asInstanceOf[Shape3D].getBoundsInParent)) {
-            checkIfNodeContainsAShapeFromList(node, xs, x :: contained)
+          if (f(node.getBoundsInParent, x.asInstanceOf[Shape3D].getBoundsInParent)) {
+            checkCondition(node, xs, x :: contained)
           }
           else {
-            checkIfNodeContainsAShapeFromList(node, xs, contained)
+            checkCondition(node, xs, contained)
           }
         }
       }
     }
 
-    checkIfNodeContainsAShapeFromList(node, shapesList, Nil)
+    checkCondition(node, shapesList, Nil)
   }
 
-  /**
-   * Vai devolver todas as shapes que o node intersecta.
-   *
-   * @param node       - O node
-   * @param root       - o worldRoot
-   * @param shapesList - a lista dos objetos
-   * @return
-   */
-  def getIntersectedShapes(node: Node, root: Group, shapesList: List[Shape3D]): List[Shape3D] = {
-    def checkIfNodeIntersectsAShapeFromList(node: Node, list: List[Shape3D], contained: List[Shape3D]): List[Shape3D] = {
-      list match {
-        case Nil => contained
-        case x :: xs => {
-          if (node.getBoundsInParent.intersects(x.asInstanceOf[Shape3D].getBoundsInParent)) {
-            checkIfNodeIntersectsAShapeFromList(node, xs, x :: contained)
-          }
-          else {
-            checkIfNodeIntersectsAShapeFromList(node, xs, contained)
-          }
-        }
-      }
-    }
-
-    checkIfNodeIntersectsAShapeFromList(node, shapesList, Nil)
-  }
-
-  /**
-   * Funcao usada para criar uma particao
-   *
-   * @param placement - o placement
-   * @return - a particao
-   */
-  // Cria um cubo com o placement enviado como parametro
-  def createShapeCube(placement: Placement): Box = {
-    val xyz = placement._1
-    val size = placement._2
-    val box = new Box(size, size, size)
-    box.setTranslateX(size / 2 + xyz._1)
-    box.setTranslateY(size / 2 + xyz._2)
-    box.setTranslateZ(size / 2 + xyz._3)
-    // Aqui temos que ver se a particao está dentro do campo de visão do CamVolume, para definirmos a cor
-    if (box.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.asInstanceOf[Shape3D].getBoundsInParent)) {
-      box.setMaterial(blueMaterial)
-    }
-    else {
-      box.setMaterial(whiteMaterial)
-    }
-    box.setDrawMode(DrawMode.LINE)
-    box
-  }
-
-  /**
-   * Funcao que vai verificar se um node está a intersectar alguma shape
-   *
-   * @param node       - o node
-   * @param root       - o worldRoot
-   * @param shapesList - a lista de shapes
-   * @return
-   */
-  def intersectAShape(node: Node, root: Group, shapesList: List[Shape3D]): Boolean = {
-    def checkIfNodeIntersectsShape(node: Node, list: List[Shape3D]): Boolean = {
+  def checkConditionWithBounds(node: Node, shapesList: List[Shape3D], f: (Bounds, Bounds) => Boolean): Boolean = {
+    def checkCondition(node: Node, list: List[Shape3D]): Boolean = {
       list match {
         case Nil => false
         case x :: xs => {
-          //Quando um node contem uma shape, o node vai intersectar a shape tambem.
-          //Por causa disso, não conseguimos perceber se está realmente a intersectar ou se está contido no node
-          //Para conseguir verificar se está só a intersectar, temos que usar este if
-          if (node.getBoundsInParent.intersects(x.asInstanceOf[Shape3D].getBoundsInParent) && !node.getBoundsInParent.contains(x.asInstanceOf[Shape3D].getBoundsInParent)) {
+          if (f(node.getBoundsInParent, x.asInstanceOf[Shape3D].getBoundsInParent)) {
             true
           }
           else {
-            checkIfNodeIntersectsShape(node, xs)
+            checkCondition(node, xs)
           }
         }
       }
     }
-
-    checkIfNodeIntersectsShape(node, shapesList)
+    checkCondition(node, shapesList)
   }
 
-  /**
-   * Verifica se um node contem uma shape
-   *
-   * @param node       - o node
-   * @param root       - o worldRoot
-   * @param shapesList - a lista de shapes
-   * @return
-   */
-  def containsAShape(node: Node, root: Group, shapesList: List[Shape3D]): Boolean = {
-    def checkIfNodeContainsShape(node: Node, list: List[Shape3D]): Boolean = {
-      list match {
-        case Nil => false
-        case x :: xs => {
-          if (node.getBoundsInParent.contains(x.asInstanceOf[Shape3D].getBoundsInParent)) {
-            true
-          }
-          else {
-            checkIfNodeContainsShape(node, xs)
-          }
-        }
-      }
-    }
-
-    checkIfNodeContainsShape(node, shapesList)
+  def intersectsAShapeFunc(bounds: Bounds, secondBounds: Bounds): Boolean = {
+    bounds.intersects(secondBounds)
   }
 
-  //T1
+  def intersectsAShapeWithoutContainingFunc(bounds: Bounds, secondBounds: Bounds): Boolean = {
+    bounds.intersects(secondBounds) && !bounds.contains(secondBounds)
+  }
+
+  def containsAShapeFunc(bounds: Bounds, secondBounds: Bounds): Boolean = {
+    bounds.contains(secondBounds)
+  }
+
+  def containsAShapeWithoutIntersectingFunc(bounds: Bounds, secondBounds: Bounds): Boolean = {
+    bounds.contains(secondBounds) && !intersectsAShapeWithoutContainingFunc(bounds, secondBounds)
+  }
 
   /**
    * Vai converter a lista de String numa lista de Shapes
@@ -225,6 +144,7 @@ object PureLayer {
    * @param lst - a lista de Strings
    * @return - a lista de shapes
    */
+  //T1
   def getShapesFromList(lst: List[String]): (List[Shape3D], Double) = {
 
     //Se, ao corrermos a aplicacao, carregarmos o ficheiro output.txt em vez do config.txt, vai haver uma linha com a ultima scale da octree
@@ -335,18 +255,37 @@ object PureLayer {
     shapes match {
       case Nil => Nil
       case x :: xs => {
-        if (x.asInstanceOf[Shape3D].getDrawMode != DrawMode.FILL) {
-          if (!x.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.getBoundsInParent)) {
-            x.asInstanceOf[Shape3D].setMaterial(whiteMaterial)
+        if (x.getDrawMode != DrawMode.FILL) {
+          if (!x.getBoundsInParent.intersects(camVolume.getBoundsInParent)) {
+            x.setMaterial(whiteMaterial)
           }
           else {
-            x.asInstanceOf[Shape3D].setMaterial(blueMaterial)
+            x.setMaterial(blueMaterial)
           }
         }
         x :: changeColor(xs)
       }
     }
   }
+
+  //Como deveria ficar
+  /**
+   * def changeColor(shapes: List[Bounds], camBound: Bounds): List[Colors] = {
+    shapes match {
+      case Nil => Nil
+
+      case x :: xs =>
+          val newColor = if (!x.intersects(camBound)) {
+            Colors.White
+          } else {
+            Colors.Blue
+          }
+
+        newColor :: changeColor(xs, camBound)
+    }
+  }
+*/
+
 
   //T1
 
@@ -392,8 +331,8 @@ object PureLayer {
       oct match {
         case OcEmpty => OcEmpty
         case OcLeaf(section) => {
-          val sec = section.asInstanceOf[Section]
-          val newSection: Section = (((sec._1._1._1 * fact, sec._1._1._2 * fact, sec._1._1._3 * fact), sec._1._2 * fact), sec._2)
+          val (((x, y, z), size), shapes) = section.asInstanceOf[Section]
+          val newSection: Section = (((x * fact, y * fact, z * fact), size * fact), shapes)
           OcLeaf(newSection)
         }
         case OcNode(coords, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11) => {

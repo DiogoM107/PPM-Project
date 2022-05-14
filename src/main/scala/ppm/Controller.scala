@@ -6,7 +6,7 @@ import javafx.scene.SubScene
 import javafx.scene.layout.{GridPane, Pane}
 import main.scala.ppm.ImpureLayer.{OUTPUT_FILE, writeToFile}
 import main.scala.ppm.InitSubScene.{camVolume, worldRoot}
-import main.scala.ppm.PureLayer.{changeColor, createOcTree, getAllShapesFromRoot, greenRemove, mapColourEffect, octree, scaleOctree, sepia}
+import main.scala.ppm.PureLayer._
 
 class Controller {
 

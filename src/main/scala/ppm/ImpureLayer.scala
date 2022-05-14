@@ -3,6 +3,7 @@ package main.scala.ppm
 import javafx.scene.{Group, Node}
 import javafx.scene.paint.PhongMaterial
 import javafx.scene.shape.{Box, DrawMode, Shape3D}
+import main.scala.ppm.InitSubScene.{blueMaterial, camVolume, whiteMaterial}
 import main.scala.ppm.PureLayer.{MAX_SCALE, Placement, Section, getAllShapesFromRoot}
 
 import java.io.{File, PrintWriter}
@@ -10,6 +11,32 @@ import java.io.{File, PrintWriter}
 object ImpureLayer {
 
   val OUTPUT_FILE = "output.txt"
+
+  /**
+   * Funcao usada para criar uma particao
+   *
+   * @param placement - o placement
+   * @return - a particao
+   */
+  // Cria um cubo com o placement enviado como parametro
+  def createShapeCube(placement: Placement): Box = {
+    val ((x, y, z), size) = placement
+
+    val box = new Box(size, size, size)
+    box.setTranslateX(size / 2 + x)
+    box.setTranslateY(size / 2 + y)
+    box.setTranslateZ(size / 2 + z)
+
+    // Aqui temos que ver se a particao está dentro do campo de visão do CamVolume, para definirmos a cor
+    if (box.asInstanceOf[Shape3D].getBoundsInParent.intersects(camVolume.asInstanceOf[Shape3D].getBoundsInParent)) {
+      box.setMaterial(blueMaterial)
+    }
+    else {
+      box.setMaterial(whiteMaterial)
+    }
+    box.setDrawMode(DrawMode.LINE)
+    box
+  }
 
   // Serve para testes
   def printOctTree[A](octree: Octree[A]): Unit = {

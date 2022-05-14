@@ -14,10 +14,6 @@ import scala.annotation.tailrec
 
 class Main extends Application {
 
-
-  /*
-    Additional information about JavaFX basic concepts (e.g. Stage, Scene) will be provided in week7
-   */
   override def start(stage: Stage): Unit = {
 
     //Get and print program arguments (args: Array[String])
