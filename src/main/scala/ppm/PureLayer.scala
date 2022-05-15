@@ -2,13 +2,12 @@ package main.scala.ppm
 
 import javafx.geometry.Bounds
 import javafx.scene.{ Group, Node }
-import javafx.scene.paint.{ Color, PhongMaterial }
-import javafx.scene.shape.{ Box, Cylinder, DrawMode, Shape3D }
+import javafx.scene.paint.Color
+import javafx.scene.shape.{ DrawMode, Shape3D }
 import main.scala.ppm.ImpureLayer.{ createShapeCube, drawShapesInRoot, removeShapesFromRoot }
-import main.scala.ppm.InitSubScene.{ blueMaterial, camVolume, whiteMaterial, worldRoot }
+import main.scala.ppm.InitSubScene.{ blueMaterial, camVolume, whiteMaterial }
 
 import scala.annotation.tailrec
-import scala.io.Source
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 object PureLayer {
@@ -89,6 +88,7 @@ object PureLayer {
   }
 
   def getShapesWithCondition( node: Node, shapesList: List[ Shape3D ], func: (Bounds, Bounds) => Boolean ): List[ Shape3D ] = {
+    @tailrec
     def checkCondition( node: Node, list: List[ Shape3D ], contained: List[ Shape3D ] ): List[ Shape3D ] = {
       list match {
         case Nil => contained
@@ -107,6 +107,7 @@ object PureLayer {
   }
 
   def checkConditionWithBounds( node: Node, shapesList: List[ Shape3D ], func: (Bounds, Bounds) => Boolean ): Boolean = {
+    @tailrec
     def checkCondition( node: Node, list: List[ Shape3D ] ): Boolean = {
       list match {
         case Nil => false
@@ -140,105 +141,28 @@ object PureLayer {
   }
 
   /**
-   * Vai converter a lista de String numa lista de Shapes
-   *
-   * @param lst - a lista de Strings
-   * @return - a lista de shapes
-   */
-  //T1
-  def getShapesFromList( lst: List[ String ] ): (List[ Shape3D ], Double) = {
-
-    //Se, ao corrermos a aplicacao, carregarmos o ficheiro output.txt em vez do config.txt, vai haver uma linha com a ultima scale da octree
-    //Esta funcao serve para ver se esse scale existe, e se existir, devolve esse scala e um true para informar que essa linha existia
-    def checkScale( line: String ): (Double, Boolean) = {
-      val elem = line.split( " " )
-      elem( 0 ).toLowerCase() match {
-        case "scale" => {
-          (elem( 1 ).toDouble, true)
-        }
-        case _ => (1, false)
-      }
-    }
-
-    //Vai converter a lista com as linhas do ficheiro com informação de shapes numa lista de shapes
-    @tailrec
-    def createObjs( lst: List[ String ], objs: List[ Shape3D ] ): List[ Shape3D ] = {
-      lst match {
-        case Nil => objs
-        case x :: tail => {
-          val elem = x.split( " " )
-          val rgb = elem( 1 ).replace( "(", "" ).replace( ")", "" ).split( "," )
-          val color = new PhongMaterial()
-          color.setDiffuseColor( Color.rgb( rgb( 0 ).toInt, rgb( 1 ).toInt, rgb( 2 ).toInt ) )
-          val (transX, transY, transZ) = (elem( 2 ).toDouble, elem( 3 ).toDouble, elem( 4 ).toDouble)
-          val (scaleX, scaleY, scaleZ) = (elem( 5 ).toDouble, elem( 6 ).toDouble, elem( 7 ).toDouble)
-          elem( 0 ).toLowerCase() match {
-            case "cylinder" => {
-              val cylinder = new Cylinder( 0.5, 1, 10 )
-              cylinder.setTranslateX( transX )
-              cylinder.setTranslateY( transY )
-              cylinder.setTranslateZ( transZ )
-              cylinder.setScaleX( scaleX )
-              cylinder.setScaleY( scaleY )
-              cylinder.setScaleZ( scaleZ )
-              cylinder.setMaterial( color )
-              cylinder.setDrawMode( DrawMode.FILL )
-              createObjs( tail, cylinder :: objs )
-            }
-            case "cube" => {
-              val box = new Box( 1, 1, 1 )
-              box.setTranslateX( transX )
-              box.setTranslateY( transY )
-              box.setTranslateZ( transZ )
-              box.setScaleX( scaleX )
-              box.setScaleY( scaleY )
-              box.setScaleZ( scaleZ )
-              box.setMaterial( color )
-              box.setDrawMode( DrawMode.FILL )
-              createObjs( tail, box :: objs )
-
-            }
-            case _ => {
-              createObjs( tail, objs )
-            }
-          }
-        }
-      }
-    }
-
-    val (scale, existsScale) = checkScale( lst.head )
-
-    if ( existsScale ) {
-      (createObjs( lst.tail, Nil ), scale)
-    }
-    else {
-      (createObjs( lst, Nil ), scale)
-    }
-
-  }
-
-  /**
    * Funcao devolve todas as shapes que existem no worldRoot, ignorando o camVolume
    *
    * @param root - worldRoot
    * @return - a lista de shapes
    */
   def getAllShapesFromRoot( root: Group ): List[ Shape3D ] = {
-    def aux( children: List[ Node ], shapes: List[ Shape3D ] ): List[ Shape3D ] = {
+    @tailrec
+    def getShapesWithAcc( children: List[ Node ], acc: List[ Shape3D ] ): List[ Shape3D ] = {
       children match {
-        case Nil => shapes
+        case Nil => acc
         case x :: xs =>
-          if ( x.isInstanceOf[ Shape3D ] && x != camVolume ) {
-            aux( xs, x.asInstanceOf[ Shape3D ] :: shapes )
-          }
-          else {
-            aux( xs, shapes )
+          x match {
+            case shape: Shape3D if x != camVolume =>
+              getShapesWithAcc( xs, shape :: acc )
+            case _ =>
+              getShapesWithAcc( xs, acc )
           }
       }
     }
 
     val list = root.getChildren.asScala.toList
-    aux( list, Nil )
+    getShapesWithAcc( list, Nil )
   }
 
   /**
@@ -264,19 +188,6 @@ object PureLayer {
         }
         x :: getShapesWithChangedColor( xs )
     }
-  }
-
-  //T1
-
-  /**
-   * Funcao que vai criar as shapes e definir o scale inicial
-   *
-   * @param file - O nome/caminho do ficheiro
-   * @return - a lista das shapes carregadas e o scale inicial
-   */
-  def createShapesAndScaleFromFile( file: String ): (List[ Shape3D ], Double) = {
-    val lines = Source.fromFile( file ).getLines().toList
-    getShapesFromList( lines )
   }
 
   //T4
@@ -309,15 +220,13 @@ object PureLayer {
     def scaleOctNodes[ A ]( oct: Octree[ Placement ] ): Octree[ Placement ] = {
       oct match {
         case OcEmpty => OcEmpty
-        case OcLeaf( section ) => {
+        case OcLeaf( section ) =>
           val (((x, y, z), size), shapes) = section.asInstanceOf[ Section ]
           val newSection: Section = (((x * fact, y * fact, z * fact), size * fact), shapes)
           OcLeaf( newSection )
-        }
-        case OcNode( ((x, y, z), size), up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11 ) => {
+        case OcNode( ((x, y, z), size), up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11 ) =>
           val newCoords = ((x * fact, y * fact, z * fact), size * fact)
           OcNode( newCoords, scaleOctNodes( up_00 ), scaleOctNodes( up_01 ), scaleOctNodes( up_10 ), scaleOctNodes( up_11 ), scaleOctNodes( down_00 ), scaleOctNodes( down_01 ), scaleOctNodes( down_10 ), scaleOctNodes( down_11 ) )
-        }
       }
     }
 
@@ -329,9 +238,9 @@ object PureLayer {
   }
 
   def sepia( color: Color ): Color = {
-    val r = Math.min( ( ( ( color.getRed * 0.4 * 255 ) ) + ( ( color.getGreen * 0.77 * 255 ) ) + ( ( color.getBlue * 0.2 * 255 ) ) ).asInstanceOf[ Int ], 255 )
-    val g = Math.min( ( ( ( color.getRed * 0.35 * 255 ) ) + ( ( color.getGreen * 0.69 * 255 ) ) + ( ( color.getBlue * 0.17 * 255 ) ) ).asInstanceOf[ Int ], 255 )
-    val b = Math.min( ( ( ( color.getRed * 0.27 * 255 ) ) + ( ( color.getGreen * 0.53 * 255 ) ) + ( ( color.getBlue * 0.13 * 255 ) ) ).asInstanceOf[ Int ], 255 )
+    val r = Math.min( ( ( color.getRed * 0.4 * 255 ) + ( color.getGreen * 0.77 * 255 ) + ( color.getBlue * 0.2 * 255 ) ).asInstanceOf[ Int ], 255 )
+    val g = Math.min( ( ( color.getRed * 0.35 * 255 ) + ( color.getGreen * 0.69 * 255 ) + ( color.getBlue * 0.17 * 255 ) ).asInstanceOf[ Int ], 255 )
+    val b = Math.min( ( ( color.getRed * 0.27 * 255 ) + ( color.getGreen * 0.53 * 255 ) + ( color.getBlue * 0.13 * 255 ) ).asInstanceOf[ Int ], 255 )
     Color.rgb( r, g, b )
   }
 
@@ -340,16 +249,14 @@ object PureLayer {
   }
 
   //TODO - completar
-  /*
-  def getAllShapesAndPartitionsFromOctree(octree: Octree[Placement]): List[Shape3D] = {
+
+  def getAllShapesAndPartitionsFromOctree( octree: Octree[ Placement ] ): List[ Object ] = {
     octree match {
-      case OcEmpty => Nil
-      case OcLeaf((placement: Placement, shapes: List[Shape3D])) => shapes :+ createShapeCube(placement)
-      case OcNode(_, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11) =>
-        getAllShapesAndPartitionsFromOctree(up_00) :: getAllShapesAndPartitionsFromOctree(up_01) :: getAllShapesAndPartitionsFromOctree(up_10) :: getAllShapesAndPartitionsFromOctree(up_11) :: getAllShapesAndPartitionsFromOctree(down_00) :: getAllShapesAndPartitionsFromOctree(down_01) :: getAllShapesAndPartitionsFromOctree(down_10) :: getAllShapesAndPartitionsFromOctree(down_11)
+      case OcLeaf( (placement: Placement, shapes: List[ Shape3D ]) ) => shapes :+ createShapeCube( placement )
+      case OcNode( _, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11 ) =>
+        getAllShapesAndPartitionsFromOctree( up_00 ).asInstanceOf[ List[ Shape3D ] ] :: getAllShapesAndPartitionsFromOctree( up_01 ).asInstanceOf[ List[ Shape3D ] ] :: getAllShapesAndPartitionsFromOctree( up_10 ).asInstanceOf[ List[ Shape3D ] ] :: getAllShapesAndPartitionsFromOctree( up_11 ).asInstanceOf[ List[ Shape3D ] ] :: getAllShapesAndPartitionsFromOctree( down_00 ).asInstanceOf[ List[ Shape3D ] ] :: getAllShapesAndPartitionsFromOctree( down_01 ).asInstanceOf[ List[ Shape3D ] ] :: getAllShapesAndPartitionsFromOctree( down_10 ).asInstanceOf[ List[ Shape3D ] ] :: getAllShapesAndPartitionsFromOctree( down_11 ).asInstanceOf[ List[ Shape3D ] ]
+      case _ => Nil
     }
   }
-
-   */
 
 }

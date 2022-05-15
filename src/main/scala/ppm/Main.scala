@@ -21,7 +21,7 @@ class Main extends Application {
     println( "Program arguments:" + params.getRaw )
 
     //Escolher qual a interface que deve correr:
-    //octree = startTextUI(worldRoot)
+    //octree = startTextUI( worldRoot )
     octree = startGUI( stage, worldRoot )
     if ( octree == OcEmpty ) {
       println( "Programa terminado." )
@@ -43,12 +43,18 @@ class Main extends Application {
   }
 
   def startTextUI( root: Group ): Octree[ Placement ] = {
-    val fileName = getFileName()
-    val depth = getDepth()
-    val (shapes, scale) = createShapesAndScaleFromFile( fileName )
-    drawShapesInRoot( shapes, root )
-    var oct = createOcTree( MAX_SCALE * scale, root, shapes, depth )
-    runWithTextUI( oct, root )
+    val fileName = getFileName
+    val depth = getDepth
+    createShapesAndScaleFromFile( fileName ) match {
+      case Some( (shapes, scale) ) =>
+        drawShapesInRoot( shapes, root )
+        val oct = createOcTree( MAX_SCALE * scale, root, shapes, depth )
+        runWithTextUI( oct, root )
+      case None =>
+        println( "Erro na leitura do ficheiro." )
+        OcEmpty
+    }
+
   }
 
   def runWithTextUI( octree: Octree[ Placement ], root: Group ): Octree[ Placement ] = {
@@ -58,32 +64,27 @@ class Main extends Application {
 
     @tailrec
     def runLoop( ): Octree[ Placement ] = {
-      val opt = getOption()
+      val opt = getOption
       opt match {
-        case 1 => {
+        case 1 =>
           oct = scaleOctree( 2, oct, root )
           writeToFile( OUTPUT_FILE, oct, root )
           runLoop()
-        }
-        case 2 => {
+        case 2 =>
           oct = scaleOctree( 0.5, oct, root )
           writeToFile( OUTPUT_FILE, oct, root )
           runLoop()
-        }
-        case 3 => {
+        case 3 =>
           oct = mapColourEffect( sepia, oct )
           writeToFile( OUTPUT_FILE, oct, root )
           runLoop()
-        }
-        case 4 => {
+        case 4 =>
           oct = mapColourEffect( greenRemove, oct )
           writeToFile( OUTPUT_FILE, oct, root )
           runLoop()
-        }
-        case 5 => {
+        case 5 =>
           writeToFile( OUTPUT_FILE, oct, root )
           oct
-        }
       }
     }
 
@@ -102,17 +103,22 @@ class Main extends Application {
 
     val fileChooser: FileChooser = new FileChooser()
     fileChooser.setTitle( "Ficheiro de configuração." )
-    val currentDir = Paths.get( "." ).toAbsolutePath().normalize().toString()
+    val currentDir = Paths.get( "." ).toAbsolutePath.normalize().toString
     fileChooser.setInitialDirectory( new File( currentDir ) )
     val extFilter = new FileChooser.ExtensionFilter( "TXT files (*.txt)", "*.txt" )
     fileChooser.getExtensionFilters.add( extFilter )
     val file = fileChooser.showOpenDialog( stage )
-    println( s"File: ${file}" )
+    println( s"File: $file" )
 
     if ( file != null ) {
-      val (shapes, scale) = createShapesAndScaleFromFile( file.getName )
-      drawShapesInRoot( shapes, root )
-      createOcTree( MAX_SCALE * scale, root, shapes, depth )
+      createShapesAndScaleFromFile( file.getName ) match {
+        case Some( (shapes, scale) ) =>
+          drawShapesInRoot( shapes, root )
+          createOcTree( MAX_SCALE * scale, root, shapes, depth )
+        case None =>
+          println( "Erro na leitura do ficheiro." )
+          OcEmpty
+      }
 
     }
     else {
