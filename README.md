@@ -6,7 +6,7 @@ Para escolher entre executar o projeto com a interface textual ou gráfica é ne
 
 O ficheiro a carregar deve ser o config.txt. Depois de executar uma vez e fazer operações à Octree, os objetos alterados são gravados no ficheiro output.txt. Ao carregar o ficheiro output.txt, serão carregados os objetos e a octree que foi criada na execução anterior.
 
-Ao fazer download do projeto, se o for editar então deve import o CodeStyles.xml (IDE usado foi o InteliJ).
+Ao fazer download do projeto, se o for editar então deve importar o CodeStyles.xml (IDE usado foi o IntelliJ).
 
 Para o correcto funcionamente do programa, deve seguir a formatação do exemplo abaixo:
 
