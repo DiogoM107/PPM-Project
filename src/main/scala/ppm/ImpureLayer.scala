@@ -7,6 +7,7 @@ import main.scala.ppm.InitSubScene.{ blueMaterial, camVolume, whiteMaterial }
 import main.scala.ppm.PureLayer.{ MAX_SCALE, Placement, Section, getAllShapesFromRoot }
 
 import java.io.{ File, PrintWriter }
+import scala.annotation.tailrec
 
 object ImpureLayer {
 
@@ -41,8 +42,8 @@ object ImpureLayer {
   // Serve para testes
   def printOctTree[ A ]( octree: Octree[ A ] ): Unit = {
     octree match {
-      case OcEmpty => ""
-      case OcNode( coords, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11 ) => {
+
+      case OcNode( _, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11 ) =>
         printOctTree( up_00 )
         printOctTree( up_01 )
         printOctTree( up_10 )
@@ -51,21 +52,21 @@ object ImpureLayer {
         printOctTree( down_01 )
         printOctTree( down_10 )
         printOctTree( down_11 )
-      }
-      case OcLeaf( section ) => {
+
+      case OcLeaf( section ) =>
         printShapesList( section.asInstanceOf[ Section ]._2 )
-      }
+
     }
   }
 
   //Serve para testes
+  @tailrec
   def printShapesList( shapes: List[ Node ] ): Unit = {
     shapes match {
-      case Nil => ""
-      case x :: tail => {
+
+      case x :: tail =>
         printShape( x.asInstanceOf[ Shape3D ] )
         printShapesList( tail )
-      }
     }
   }
 
@@ -85,20 +86,21 @@ object ImpureLayer {
     val writer = new PrintWriter( new File( file ) )
     //Aqui vai buscar o valor do scale da octree final para escrever na primeira linha do ficheiro de output
     val scale = oct match {
-      case OcNode( coords, up_00, up_01, up_10, up_11, down_00, down_01, down_10, down_11 ) => coords._2 / MAX_SCALE
+      case OcNode( coords, _, _, _, _, _, _, _, _ ) => coords._2 / MAX_SCALE
       case _ => 1
     }
-    writer.write( s"Scale ${scale}\n" )
+    writer.write( s"Scale $scale\n" )
     //Vai buscar todas as shapes do worldRoot. Faz um filtro para ir buscar só as que tem o DrawMode.FILL e depois por cada uma constroi uma linha e escreve essa linha no ficheiro
     getAllShapesFromRoot( root ).filter( shape => {
-      shape.asInstanceOf[ Shape3D ].getDrawMode == DrawMode.FILL
+      shape.getDrawMode == DrawMode.FILL
     } ).map( shape => {
-      val rgb = s"(${( shape.asInstanceOf[ Shape3D ].getMaterial.asInstanceOf[ PhongMaterial ].getDiffuseColor.getRed * 255 ).asInstanceOf[ Int ]},${( shape.asInstanceOf[ Shape3D ].getMaterial.asInstanceOf[ PhongMaterial ].getDiffuseColor.getGreen * 255 ).asInstanceOf[ Int ]},${( shape.asInstanceOf[ Shape3D ].getMaterial.asInstanceOf[ PhongMaterial ].getDiffuseColor.getBlue * 255 ).asInstanceOf[ Int ]})"
-      writer.write( s"${if ( shape.isInstanceOf[ Box ] ) "Cube" else "Cylinder"} ${rgb} ${shape.getTranslateX} ${shape.getTranslateY} ${shape.getTranslateZ} ${shape.getScaleX} ${shape.getScaleY} ${shape.getScaleZ}\n" )
+      val rgb = s"(${( shape.getMaterial.asInstanceOf[ PhongMaterial ].getDiffuseColor.getRed * 255 ).asInstanceOf[ Int ]},${( shape.getMaterial.asInstanceOf[ PhongMaterial ].getDiffuseColor.getGreen * 255 ).asInstanceOf[ Int ]},${( shape.getMaterial.asInstanceOf[ PhongMaterial ].getDiffuseColor.getBlue * 255 ).asInstanceOf[ Int ]})"
+      writer.write( s"${if ( shape.isInstanceOf[ Box ] ) "Cube" else "Cylinder"} $rgb ${shape.getTranslateX} ${shape.getTranslateY} ${shape.getTranslateZ} ${shape.getScaleX} ${shape.getScaleY} ${shape.getScaleZ}\n" )
     } )
-    writer.close
+    writer.close()
   }
 
+  @tailrec
   def drawShapesInRoot( shapes: List[ Shape3D ], root: Group ): Boolean = {
     shapes match {
       case Nil => true
@@ -120,7 +122,6 @@ object ImpureLayer {
       case OcLeaf( (placement: Placement, shapes: List[ Shape3D ]) ) =>
         val list = shapes
         list.map( x => {
-          val y = x
           val c = x.getMaterial.asInstanceOf[ PhongMaterial ].getDiffuseColor
           val pm = new PhongMaterial()
           pm.setDiffuseColor( func( c ) )

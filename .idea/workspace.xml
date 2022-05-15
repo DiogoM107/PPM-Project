@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="Pequena modificação">
+    <list default="true" id="8b0dcd76-f4b2-4401-b59f-7d8c67cba4d6" name="Changes" comment="Alguns melhoramentos,&#10;Alteração no Code Style">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/output.txt" beforeDir="false" afterPath="$PROJECT_DIR$/output.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Controller.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Controller.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/ImpureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/ImpureLayer.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/InitSubScene.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/InitSubScene.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/Main.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/PureLayer.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ppm/TextUI.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ppm/TextUI.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -255,7 +250,14 @@
       <option name="project" value="LOCAL" />
       <updated>1652507573844</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Alguns melhoramentos,&#10;Alteração no Code Style">
+      <created>1652630954125</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1652630954125</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="Vcs.Log.History.Properties">
@@ -309,6 +311,7 @@
     <MESSAGE value="Pequenas alterações" />
     <MESSAGE value="Algumas melhorias" />
     <MESSAGE value="Pequena modificação" />
-    <option name="LAST_COMMIT_MESSAGE" value="Pequena modificação" />
+    <MESSAGE value="Alguns melhoramentos,&#10;Alteração no Code Style" />
+    <option name="LAST_COMMIT_MESSAGE" value="Alguns melhoramentos,&#10;Alteração no Code Style" />
   </component>
 </project>
