@@ -4,7 +4,7 @@ import javafx.fxml.FXML
 import javafx.scene.control.{Button, Label, TextField}
 import javafx.scene.SubScene
 import javafx.scene.layout.{GridPane, Pane}
-import main.scala.ppm.ImpureLayer.{OUTPUT_FILE, writeToFile}
+import main.scala.ppm.ImpureLayer.{OUTPUT_FILE, writeToFile, mapColourEffect}
 import main.scala.ppm.InitSubScene.{camVolume, worldRoot}
 import main.scala.ppm.PureLayer._
 
@@ -71,12 +71,12 @@ class Controller {
 
   def onUpButtonClick() = {
     camVolume.setTranslateX(camVolume.getTranslateX - 2)
-    changeColor(getAllShapesFromRoot(worldRoot))
+    getShapesWithChangedColor(getAllShapesFromRoot(worldRoot))
   }
 
   def onDownButtonClick() = {
     camVolume.setTranslateX(camVolume.getTranslateX + 2)
-    changeColor(getAllShapesFromRoot(worldRoot))
+    getShapesWithChangedColor(getAllShapesFromRoot(worldRoot))
   }
 
   /**
